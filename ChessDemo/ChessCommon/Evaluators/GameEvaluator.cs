@@ -11,7 +11,7 @@ namespace ChessCommon.Evaluators
     {
         public int maxDepth = 3;
 
-        IPositionEvaluator _positionCalculator;
+        IPositionEvaluator _positionEvaluator;
         Board _board;
         private IDictionary<int, Piece> BlackPieces = new Dictionary<int, Piece>();
         private IDictionary<int, Piece> WhitePieces = new Dictionary<int, Piece>();
@@ -22,9 +22,9 @@ namespace ChessCommon.Evaluators
         public int Counter { get; private set; }
         public int BestValue { get; private set; }
      
-        public GameEvaluator(IPositionEvaluator positionCalculator)
+        public GameEvaluator(IPositionEvaluator positionEvaluator)
         {
-            _positionCalculator = positionCalculator;
+            _positionEvaluator = positionEvaluator;
 
             InitPlayersPieces();
         }
@@ -40,7 +40,7 @@ namespace ChessCommon.Evaluators
             {
                 foreach (Piece piece in playerPieces.Values.ToList())
                 {
-                    List<Destination> legalPositions = _positionCalculator.GetLegalPositions(piece, _board);
+                    List<Destination> legalPositions = _positionEvaluator.GetLegalPositions(piece, _board);
 
 
 
@@ -111,7 +111,7 @@ namespace ChessCommon.Evaluators
             var currentLevelBestValue = isMax ? -1000 : 1000;
             foreach (Piece piece in playerPieces.Values.ToList())
             {
-                List<Destination> legalPositions = _positionCalculator.GetLegalPositions(piece, _board);
+                List<Destination> legalPositions = _positionEvaluator.GetLegalPositions(piece, _board);
 
                 foreach (Destination destPosition in legalPositions)
                 {
