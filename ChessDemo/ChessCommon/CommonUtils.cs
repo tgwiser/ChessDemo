@@ -53,6 +53,14 @@ namespace ChessCommon
         }
 
 
+        public static (bool, bool) GetCastleState(PieceColor pieceColor, Board board)
+        {
+            bool smallCastlingEnabled = pieceColor == PieceColor.White ? board.whiteSmallCastlingEnabled : board.blackSmallCastlingEnabled;
+            bool largeCastlingEnabled = pieceColor == PieceColor.White ? board.whiteLargeCastlingEnabled : board.blackLargeCastlingEnabled;
+            return (smallCastlingEnabled, largeCastlingEnabled);
+        }
+
+
         public static string Pretify(Position position)
         {
             byte[] intBytes = BitConverter.GetBytes(97 + position.X);
