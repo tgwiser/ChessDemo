@@ -1,0 +1,304 @@
+﻿@page "/Chess"
+@using BlazorServerDemo.Data
+@using Common.Chess
+@using System.Diagnostics
+@using System.Text;
+@using Common.Chess.Models
+
+<PageTitle>Counter</PageTitle>
+
+@inject ChessService chessService
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <style>
+        .chess-info {
+            margin-bottom: 10px;
+            padding: 5px
+        }
+        .chess-board { border-spacing: 0; border-collapse: collapse; }
+        .chess-board th { padding: .5em; }
+        .chess-board td { border: 1px solid;  }
+        .chess-board .light { background: #eee; }
+
+            .chess-board .dark {
+                background: #75abbc;
+            }
+    </style>
+
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("Text", ev.target.id);
+        }
+
+        function drop(ev) {
+            let data = ev.dataTransfer.getData("Text");
+            ev.target.appendChild(document.getElementById(data));
+            ev.preventDefault();
+        }
+    </script>
+</head>
+<body>
+
+  
+
+    <div>
+        <div style="margin-bottom: 46px; padding: 5px; float:left">
+
+            <div class="chess-info">
+                <div>
+                    <input type="radio" id="autoPlay" name="drone" @onclick="EnableAutoPlay" value="huey" checked />
+                    <label for="autoPlay">Enable AutoPlay</label>
+                </div>
+
+                <div>
+                    <input type="radio" id="disableAutoPlay" name="drone" value="dewey" @onclick="DisableAutoPlay" />
+                    <label for="disableAutoPlay">Disable AutoPlay</label>
+                </div>
+                <button class="btn btn-primary" @onclick="Play">
+                    Play
+                </button>
+            </div>
+
+            <h2>Evaluate</h2> 
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                <button class="btn btn-primary" @onclick="EvaluateMove"> Evaluate (@depth)  </button>
+                <button @onclick="IncCount" class="btn btn-info">Up</button>
+                @depth
+                <button @onclick="DecCount" class="btn btn-info">Down</button>
+            </div>
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">  Move Position:  @movePosition    </div>
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">  Move Value:  @moveValue  (@moveCounter)  </div>
+
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">  Move Time:  @evaluateMoveTime </div>
+
+
+        
+
+            <h2>Save\Load Game</h2>
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+
+                <input type="text" @bind="csvFile" placeholder="" />
+                <button class="btn btn-primary" @onclick="SaveBoard">
+                    Save Board
+                </button>
+                <button class="btn btn-primary" @onclick="LoadBoard">
+                    Load Board
+                </button>
+            </div>
+       
+
+
+
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                <h1>Info</h1> 
+                <button @onclick="GetInfo" class="btn btn-primary">GetInfo</button>
+                <button @onclick="CleanInfo" class="btn btn-primary">CleanInfo</button>
+            </div>
+
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                <b>Current Player: </b> @currentPlayer
+            </div>
+      
+
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                <div style="margin-bottom: 10px;clear:both">
+                    <b>isCheck: </b> @isCheck,  <b>isMate: </b> @isMate
+                </div>
+            </div>
+
+
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                <div style="margin-bottom: 10px;clear:both">
+                     white:  <b>@castleWhiteState</b>
+                </div>
+                <div style="margin-bottom: 10px;clear:both">
+                     black: <b> @castleBlackState </b>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                @Info
+            </div>
+
+        </div>
+        <div>         <H1> @(isMate ? "Mate" : "") </H1></div>
+        <div style="margin-bottom: 46px;border: blue;  border-width: 5px;   border-style: solid; padding: 5px; float:left">
+    
+            <table class="chess-board">
+                <tbody>
+          
+                    @for (var y = 0; y < ChessBoard.MAX_COLS; y++)
+                    {
+                        <tr>
+                            <td>@(8 - y)</td>
+                            @for (char c = 'a'; c <= 'h'; c++)
+                            {
+                                int x = ChessUtils.PositionFromFile(c);
+
+                                Position position = new Position(c + (8 - y).ToString());
+                                string className = (y + x) % 2 == 0 ? "light" : "dark";
+                                Piece? piece = chessEngine.CB?[position];
+
+                                <td draggable="true"
+                                    ondragover="allowDrop(event)"
+                                    @ondragstart="@(e => HandleDragEnter(e,position))"
+                                    @ondrop="@(e => HandleDragDroped(e,position))"
+                                    width="70px" height="70px" style="font-size:40px; text-align:center;" class="@className">
+                                    @ChessService.GetIcon(piece)
+                                </td>
+                            }
+
+
+
+                        </tr>
+                    }
+                    <tr>
+                        <th> </th>
+                        <th>a </th>
+                        <th>b</th>
+                        <th>c</th>
+                        <th>d</th>
+                        <th>e</th>
+                        <th>f</th>
+                        <th>g</th>
+                        <th>h</th>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+    </div>
+
+</body>
+
+@code {
+    private int depth = 1;
+    private ChessEngine chessEngine;
+    private Position originalPosition;
+    private string movePosition=  string.Empty;
+    private string moveCounter = string.Empty;
+    private string moveValue = string.Empty;
+    private string moveTime= string.Empty;
+    private string evaluateMoveTime = string.Empty;
+    private string currentPlayer = "";
+    private string csvFile = "";
+    private string Info = "";
+    private bool isCheck = false;
+    private bool isMate = false;
+    private bool isAutoPay = true;
+
+    private string castleBlackState = "";
+    private string castleWhiteState = "";
+
+    private void GetInfo()
+    {
+        //Check/Mate
+        isCheck = chessEngine.IsCheck();
+        isMate = chessEngine.IsMate();
+
+        //Castle
+        castleBlackState = $"Left : {chessEngine.CB.blackSmallCastlingEnabled}, Right : {chessEngine.CB.blackLargeCastlingEnabled}";
+        castleWhiteState = $"Left : {chessEngine.CB.whiteSmallCastlingEnabled}, Right : {chessEngine.CB.whiteLargeCastlingEnabled}";
+    }
+
+    private void CleanInfo()
+    {
+        //Check/Mate
+        isCheck = chessEngine.IsCheck();
+        isMate = chessEngine.IsMate();
+
+        //Castle
+        castleBlackState = string.Empty;
+        castleWhiteState = string.Empty;
+
+        //Eval
+        movePosition = string.Empty;
+        moveCounter = string.Empty;
+        moveValue = string.Empty;
+        evaluateMoveTime = string.Empty;
+
+    }
+
+    private void IncCount() =>    depth++;
+    private void DecCount() =>   depth--;
+
+    private void DisableAutoPlay() => isAutoPay = false;
+    private void EnableAutoPlay() => isAutoPay = true;
+
+
+    private void Play()
+    {
+        chessEngine.PlayBestMove(depth);
+    }
+
+    private void SaveBoard()
+    {
+        string fileName = "Data/" + csvFile + ".csv";
+        if (!string.IsNullOrWhiteSpace(csvFile))
+            chessEngine.SaveBoard(fileName);
+    }
+
+    private void LoadBoard()
+    {
+        Info = ChessService.LoadBoard(chessEngine, csvFile);
+    }
+
+    private void EvaluateMove()
+    {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        var gameValue = chessEngine.EvaluateBestMove(depth, chessEngine.CurrentPlayer);
+
+        moveValue = gameValue.BestValue.ToString();
+        movePosition = gameValue?.SelectedMove?.ToString() ?? string.Empty;
+        moveCounter = gameValue?.Counter.ToString() ?? string.Empty;
+
+        evaluateMoveTime = $"{stopwatch.Elapsed.Minutes}:{stopwatch.Elapsed.Seconds}:{stopwatch.Elapsed.Milliseconds}";
+
+        stopwatch.Stop();
+        currentPlayer = chessEngine.CurrentPlayer.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        chessEngine = chessService.GetChessEngine();
+    }
+
+    private async Task HandleDragDroped(DragEventArgs e, Position destPosition)
+    {
+        Piece piece = chessEngine.CB[originalPosition]!;
+        (bool isLeftCastleStateChanged, bool isRightCastleStateChanged) = ChessUtils.IsDestinationStateChanged(piece, chessEngine.CB);
+        bool isCastle = piece.Type == PieceType.King && Math.Abs(originalPosition.X - destPosition.X) >=2;
+
+        Destination destination = new Destination(destPosition.Y, destPosition.X, isLeftCastleStateChanged, isRightCastleStateChanged, isCastle);
+
+
+        var isLegalMove = chessEngine.IsLegalMove(originalPosition, destination);
+
+        if (isLegalMove)
+        {
+            chessEngine.DropPiece(originalPosition, destination);
+            currentPlayer = chessEngine.CurrentPlayer.ToString();
+
+            if (isAutoPay && !isMate)
+            {
+                await Task.Delay(1000);
+                Play();
+            }
+        }
+    }
+
+    private void HandleDragEnter(DragEventArgs e, Position position)
+    {
+        originalPosition = position;
+    }
+
+
+}
