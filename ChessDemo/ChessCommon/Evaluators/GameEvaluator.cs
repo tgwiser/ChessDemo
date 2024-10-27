@@ -22,10 +22,10 @@ namespace ChessCommon.Evaluators
         public int Counter { get; private set; }
         public int BestValue { get; private set; }
      
-        public GameEvaluator(IPositionEvaluator positionEvaluator)
+        public GameEvaluator(IPositionEvaluator positionEvaluator, Board board)
         {
             _positionEvaluator = positionEvaluator;
-
+            _board = board;
             InitPlayersPieces();
         }
 

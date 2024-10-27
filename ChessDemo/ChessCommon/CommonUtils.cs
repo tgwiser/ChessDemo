@@ -132,6 +132,23 @@ namespace ChessCommon
             return file + (position.Y + 1);
         }
 
+        public static (bool, bool) IsDestinationStateChanged(Piece piece, Board board)
+        {
+            if (piece.Type != PieceType.King && piece.Type != PieceType.Rook)
+                return (false, false);
+
+
+            (bool smallCastlingEnabled, bool largeCastlingEnabled) = GetCastleState(piece.Color, board);
+
+            if (piece.Type == PieceType.King)
+                return (smallCastlingEnabled, largeCastlingEnabled);
+
+            if (piece.Type == PieceType.Rook)
+                return (smallCastlingEnabled && piece.Position.X == 0, largeCastlingEnabled && piece.Position.X == 7);
+
+
+            return (smallCastlingEnabled, largeCastlingEnabled);
+        }
     }
 
 }

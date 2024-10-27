@@ -28,7 +28,7 @@ namespace ChessCommon
             PositionEvaluatorEngine = positionEvaluator;
             CB = new Board(CommonUtils.GetInitChessPices());
             PositionEvaluatorEngine.InitPieces(CB.Pieces);
-            gameEvaluator = new GameEvaluator(PositionEvaluatorEngine);
+            gameEvaluator = new GameEvaluator(PositionEvaluatorEngine, CB);
         }
 
 
@@ -129,7 +129,7 @@ namespace ChessCommon
 
         public GameEvaluator EvaluateBestMove(int depth, PieceColor color)
         {
-            var g = new GameEvaluator(PositionEvaluatorEngine);
+            var g = new GameEvaluator(PositionEvaluatorEngine, CB);
             var m = g.EvaluateBestMove(depth, color);
             return g;
         }
