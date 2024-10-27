@@ -89,7 +89,11 @@
                     Load Board
                 </button>
             </div>
-       
+            <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                <button @onclick="NextMove" class="btn btn-info">Next Move</button>
+              
+                <button @onclick="PrevMove" class="btn btn-info">Prev Move</button>
+            </div>
 
 
 
@@ -106,7 +110,10 @@
 
             <div style="margin-bottom: 10px; padding: 5px;clear:both">
                 <div style="margin-bottom: 10px;clear:both">
-                    <b>isCheck: </b> @isCheck,  <b>isMate: </b> @isMate
+                    <b>White</b> Check:  @isBlackCheck,  <b>isMate: </b> @isBlackMate
+                </div>
+                <div style="margin-bottom: 10px;clear:both">
+                    <b>Black</b> Check:  @isWhiteCheck,  <b>isMate: </b> @isWhiteMate
                 </div>
             </div>
 
@@ -187,7 +194,13 @@
     private string currentPlayer = "";
     private string csvFile = "";
     private string Info = "";
-    private bool isCheck = false;
+
+    private bool isWhiteCheck = false;
+    private bool isWhiteMate = false;
+
+    private bool isBlackCheck = false;
+    private bool isBlackMate = false;
+
     private bool isMate = false;
     private bool isAutoPay = true;
 
@@ -197,11 +210,14 @@
     private void GetInfo()
     {
         //Check/Mate
-        isCheck = chessEngine.IsCheck();
-        isMate = chessEngine.IsMate();
+        isWhiteCheck = chessEngine.IsCheck(PieceColor.White);
+        isWhiteMate = chessEngine.IsMate(PieceColor.White);
+
+        isBlackCheck = chessEngine.IsCheck(PieceColor.Black);
+        isBlackMate = chessEngine.IsMate(PieceColor.Black);
 
         //Castle
-        
+
         castleBlackState = $"Left : {chessEngine.BlackCastlingState.Left}, Right : {chessEngine.BlackCastlingState.Right}";
         castleWhiteState = $"Left : {chessEngine.WhiteCastlingState.Left}, Right : {chessEngine.WhiteCastlingState.Right}";
     }
@@ -209,8 +225,11 @@
     private void CleanInfo()
     {
         //Check/Mate
-        isCheck = chessEngine.IsCheck();
-        isMate = chessEngine.IsMate();
+
+        isWhiteCheck = false;
+        isWhiteMate = false;
+        isBlackMate = false;
+        isBlackMate = false;
 
         //Castle
         castleBlackState = string.Empty;
@@ -222,6 +241,15 @@
         moveValue = string.Empty;
         evaluateMoveTime = string.Empty;
 
+    }
+    private void NextMove()
+    {
+        chessEngine.Next();
+    }
+
+    private void PrevMove()
+    {
+        chessEngine.Prev();
     }
 
     private void IncCount() =>    depth++;
@@ -256,8 +284,8 @@
         var gameValue = chessEngine.EvaluateBestMove(depth, chessEngine.CurrentPlayer);
 
         moveValue = gameValue.BestValue.ToString();
-        movePosition = gameValue?.SelectedMove?.ToString() ?? string.Empty;
-        moveCounter = gameValue?.Counter.ToString() ?? string.Empty;
+        movePosition = gameValue.SelectedMove;
+        moveCounter = gameValue.Counter.ToString() ?? string.Empty;
 
         evaluateMoveTime = $"{stopwatch.Elapsed.Minutes}:{stopwatch.Elapsed.Seconds}:{stopwatch.Elapsed.Milliseconds}";
 

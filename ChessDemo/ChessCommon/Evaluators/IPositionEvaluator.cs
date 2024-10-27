@@ -9,9 +9,9 @@ namespace ChessCommon.Evaluators
 {
     public interface IPositionEvaluator
     {
-        List<Destination> GetLegalPositions(Piece srcPiece, Board board);
+        List<Destination> GetLegalPositions(Piece srcPiece);
 
-        void InitPieces(Piece?[,]? pieces);
+        void InitPieces();
 
     }
 

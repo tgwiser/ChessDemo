@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddTransient<IBoardManager, BoardManager>();
+builder.Services.AddSingleton<IBoardManager, BoardManager>();
 builder.Services.AddSingleton<IPositionEvaluator, PositionEvaluator>();
 builder.Services.AddSingleton<ChessService>();
 

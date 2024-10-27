@@ -9,22 +9,24 @@ namespace ChessCommon.Evaluators
 {
     public class PositionEvaluator : IPositionEvaluator
     {
-        Piece?[,]? Pieces;
+        Board board;
 
         public IServiceProvider ServiceProvider { get; }
 
-        public PositionEvaluator(IServiceProvider serviceProvider)
+        private IBoardManager _boardManager;
+
+        public PositionEvaluator(IServiceProvider serviceProvider, IBoardManager boardManager)
         {
             ServiceProvider = serviceProvider;
-            Pieces = null;
+            _boardManager = boardManager;
         }
 
-        public void InitPieces(Piece?[,]? pieces)
+        public void InitPieces()
         {
-            Pieces = pieces;
+            board = _boardManager.Board;
         }
 
-        public List<Destination> GetLegalPositions(Piece piece, Board board)
+        public List<Destination> GetLegalPositions(Piece piece)
         {
             List<Destination> legalPositions = new List<Destination>();
             Position position = piece.Position;
@@ -76,7 +78,7 @@ namespace ChessCommon.Evaluators
 
             if (newPosition.HasValue)
             {
-                var destPiece = Pieces[newPosition.Y, newPosition.X]!;
+                var destPiece = board[newPosition];
 
                 if (destPiece == null)
                 {
@@ -95,7 +97,7 @@ namespace ChessCommon.Evaluators
             Destination newPosition = new Destination(y, x);
             if (newPosition.HasValue)
             {
-                var destPiece = Pieces[y, x]!;
+                var destPiece = board[newPosition]!;
 
                 if (destPiece != null && piece.Color != destPiece.Color)
                     legalMoves.Add(newPosition);
@@ -233,7 +235,7 @@ namespace ChessCommon.Evaluators
             if (!newPosition.HasValue)
                 return false;
 
-            var destPiece = Pieces[newPosition.Y, newPosition.X]!;
+            var destPiece = board[newPosition]!;
 
             if (destPiece == null || destPiece.Color != pieceColor)
             {
@@ -242,29 +244,30 @@ namespace ChessCommon.Evaluators
             return destPiece == null;
         }
 
-
-        public bool TryAppendSmallCastlePosition(Position position, ref List<Destination> legalMoves)
+        private bool TryAppendSmallCastlePosition(Position position, ref List<Destination> legalMoves)
         {
             for (int i = 1; i <= 2; i++)
             {
-                if (Pieces[position.Y, position.X + i] != null)
+                var kingPosition = new Destination(position.Y, position.X + i, true, false, true);
+                if (board[kingPosition] != null)
                     return false;
 
                 if (i == 2)
-                    legalMoves.Add(new Destination(position.Y, position.X + 2, true, false, true));
+                    legalMoves.Add(kingPosition);
             }
             return true;
         }
 
-        public bool TryAppendLargeCastlePosition(Position position, ref List<Destination> legalMoves)
+        private bool TryAppendLargeCastlePosition(Position position, ref List<Destination> legalMoves)
         {
             for (int i = 1; i <= 3; i++)
             {
-                if (Pieces[position.Y, position.X - i] != null)
+                var kingPosition = new Destination(position.Y, position.X - i, false, true, true);
+                if (board[kingPosition] != null)
                     return false;
 
                 if (i == 3)
-                    legalMoves.Add(new Destination(position.Y, position.X - 3, false, true, true));
+                    legalMoves.Add(kingPosition);
             }
             return true;
         }

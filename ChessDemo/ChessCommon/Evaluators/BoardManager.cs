@@ -27,6 +27,7 @@ namespace ChessCommon.Evaluators
 
             //Adding to new position
             Board.Pieces[move.DestPosition.Y, move.DestPosition.X] = move.Piece;
+            move.Piece.Position= move.DestPosition;
 
             // Clearing old position
             Board.Pieces[move.SrcPosition.Y, move.SrcPosition.X] = null;

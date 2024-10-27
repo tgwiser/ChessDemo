@@ -12,7 +12,7 @@ namespace ChessCommon.Evaluators
         public int maxDepth = 3;
 
         IPositionEvaluator _positionEvaluator;
-        Board _board;
+        IBoardManager _boardManager;
         private IDictionary<int, Piece> BlackPieces = new Dictionary<int, Piece>();
         private IDictionary<int, Piece> WhitePieces = new Dictionary<int, Piece>();
         PieceColor CurrentPlayer;
@@ -22,17 +22,20 @@ namespace ChessCommon.Evaluators
         public int Counter { get; private set; }
         public int BestValue { get; private set; }
      
-        public GameEvaluator(IPositionEvaluator positionEvaluator, Board board)
+        public GameEvaluator(IPositionEvaluator positionEvaluator, IBoardManager boardManager)
         {
             _positionEvaluator = positionEvaluator;
-            _board = board;
-            InitPlayersPieces(board);
+            _boardManager = boardManager;
+            InitPlayersPieces(boardManager.Board);
         }
 
-    
 
-        private void InitPlayersPieces(Board board)
-        {
+
+        public void InitPlayersPieces(Board board)
+        { 
+            BlackPieces = new Dictionary<int, Piece>();
+            WhitePieces = new Dictionary<int, Piece>();
+
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
@@ -78,7 +81,7 @@ namespace ChessCommon.Evaluators
             {
                 foreach (Piece piece in playerPieces.Values.ToList())
                 {
-                    List<Destination> legalPositions = _positionEvaluator.GetLegalPositions(piece, _board);
+                    List<Destination> legalPositions = _positionEvaluator.GetLegalPositions(piece);
 
 
 
@@ -89,7 +92,7 @@ namespace ChessCommon.Evaluators
                         if (IsBestValue(BestValue, capturePieceValue, true))
                         {
                             //Create move
-                            Move move = new Move(piece.Position, destPosition, _board[piece.Position]!, _board[destPosition]!);
+                            Move move = new Move(piece.Position, destPosition, _boardManager.Board[piece.Position]!, _boardManager.Board[destPosition]!);
                             SelectedMove = move;
                             BestValue = capturePieceValue;
                         }
@@ -113,7 +116,7 @@ namespace ChessCommon.Evaluators
             var currentLevelBestValue = isMax ? -1000 : 1000;
             foreach (Piece piece in playerPieces.Values.ToList())
             {
-                List<Destination> legalPositions = _positionEvaluator.GetLegalPositions(piece, _board);
+                List<Destination> legalPositions = _positionEvaluator.GetLegalPositions(piece);
 
                 foreach (Destination destPosition in legalPositions)
                 {
@@ -130,7 +133,7 @@ namespace ChessCommon.Evaluators
                     else
                     {
                         //Create move
-                        Move move = new Move(piece.Position, destPosition, _board[piece.Position]!, _board[destPosition]!);
+                        Move move = new Move(piece.Position, destPosition, _boardManager.Board[piece.Position]!, _boardManager.Board[destPosition]!);
                         var playerKey = GetPieceHashKey(move.SrcPosition);
                         var destinationKey = GetPieceHashKey(move.DestPosition);
 
@@ -163,20 +166,10 @@ namespace ChessCommon.Evaluators
             var currentPieces = color == PieceColor.White ? WhitePieces : BlackPieces;
             var oponmentPieces = color == PieceColor.White ? BlackPieces : WhitePieces;
 
+            // Moving piece to its new position
             if (move.CapturedPiece != null)
-            {
                 oponmentPieces.Add(destinationKey, move.CapturedPiece);
-            }
-
-            if (!currentPieces.ContainsKey(destinationKey))
-            {
-
-            }
-            if (currentPieces.ContainsKey(playerKey))
-            {
-
-            }
-
+          
             currentPieces.Remove(destinationKey);
             currentPieces.Add(playerKey, move.Piece);
 
@@ -187,11 +180,14 @@ namespace ChessCommon.Evaluators
                 currentPieces.Add(move.Castle.SrcRockKey, theRock);
             }
 
+            //Update board
+            _boardManager.RestorePiece(move);
+
             //Changing turn
             CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
         }
 
-        private void DropPiece(Move move, int playerKey, int destinationKey, PieceColor color)
+        public void DropPiece(Move move, int playerKey, int destinationKey, PieceColor color)
         {
             var currentPieces = color == PieceColor.White ? WhitePieces : BlackPieces;
             var oponmentPieces = color == PieceColor.White ? BlackPieces : WhitePieces;
@@ -204,12 +200,14 @@ namespace ChessCommon.Evaluators
             currentPieces.Remove(playerKey);
             currentPieces.Add(destinationKey, move.Piece);
 
+            //Update board
+            _boardManager.DropPiece(move);
+
             if (move.IsCastle)
             {
                 var theRock = currentPieces[move.Castle.SrcRockKey];
                 currentPieces.Remove(move.Castle.SrcRockKey);
                 currentPieces.Add(move.Castle.DestRockKey, theRock);
-                //theRock.Position = move.Castle.SrcRock;
             }
 
             //Changing turn
@@ -224,7 +222,7 @@ namespace ChessCommon.Evaluators
 
         private int EvaluatePiece(Piece piece, Position position, bool isMax)
         {
-            int tempValue = EvaluatePiece(_board.Pieces[position.Y, position.X]!);
+            int tempValue = EvaluatePiece(_boardManager.Board.Pieces[position.Y, position.X]!);
             if (piece.Type == PieceType.Pawn && (position.Y == 0 || position.Y == 7))
                 tempValue += 9;
             return isMax ? tempValue : tempValue * -1;
