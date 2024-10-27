@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ChessCommon\ChessCommon.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,10 +1,8 @@
 ﻿@page "/Chess"
-@using BlazorServerDemo.Data
-@using Common.Chess
+@using ChessCommon
+@using ChessCommon.Models
 @using System.Diagnostics
 @using System.Text;
-@using Common.Chess.Models
-
 <PageTitle>Counter</PageTitle>
 
 @inject ChessService chessService
@@ -133,13 +131,13 @@
             <table class="chess-board">
                 <tbody>
           
-                    @for (var y = 0; y < ChessBoard.MAX_COLS; y++)
+                    @for (var y = 0; y < Board.MAX_COLS; y++)
                     {
                         <tr>
                             <td>@(8 - y)</td>
                             @for (char c = 'a'; c <= 'h'; c++)
                             {
-                                int x = ChessUtils.PositionFromFile(c);
+                                int x = CommonUtils.PositionFromFile(c);
 
                                 Position position = new Position(c + (8 - y).ToString());
                                 string className = (y + x) % 2 == 0 ? "light" : "dark";
@@ -274,7 +272,7 @@
     private async Task HandleDragDroped(DragEventArgs e, Position destPosition)
     {
         Piece piece = chessEngine.CB[originalPosition]!;
-        (bool isLeftCastleStateChanged, bool isRightCastleStateChanged) = ChessUtils.IsDestinationStateChanged(piece, chessEngine.CB);
+        (bool isLeftCastleStateChanged, bool isRightCastleStateChanged) = CommonUtils.IsDestinationStateChanged(piece, chessEngine.CB);
         bool isCastle = piece.Type == PieceType.King && Math.Abs(originalPosition.X - destPosition.X) >=2;
 
         Destination destination = new Destination(destPosition.Y, destPosition.X, isLeftCastleStateChanged, isRightCastleStateChanged, isCastle);
