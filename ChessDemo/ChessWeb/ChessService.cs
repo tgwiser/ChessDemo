@@ -8,14 +8,16 @@ namespace ChessWeb
     public class ChessService
     {
         IPositionEvaluator PositionEvaluator;
+        IBoardManager BoardManager;
 
-        public ChessService(IPositionEvaluator positionCalculator)
+        public ChessService(IPositionEvaluator positionCalculator,IBoardManager boardManager)
         {
             PositionEvaluator = positionCalculator;
+            BoardManager = boardManager;
         }
         public ChessEngine GetChessEngine()
         {
-            ChessEngine ce = new ChessEngine(PositionEvaluator);
+            ChessEngine ce = new ChessEngine(PositionEvaluator, BoardManager);
             return ce;
         }
 

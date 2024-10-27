@@ -141,7 +141,7 @@
 
                                 Position position = new Position(c + (8 - y).ToString());
                                 string className = (y + x) % 2 == 0 ? "light" : "dark";
-                                Piece? piece = chessEngine.CB?[position];
+                                Piece? piece = chessEngine.GetPiece(position);
 
                                 <td draggable="true"
                                     ondragover="allowDrop(event)"
@@ -201,8 +201,9 @@
         isMate = chessEngine.IsMate();
 
         //Castle
-        castleBlackState = $"Left : {chessEngine.CB.blackSmallCastlingEnabled}, Right : {chessEngine.CB.blackLargeCastlingEnabled}";
-        castleWhiteState = $"Left : {chessEngine.CB.whiteSmallCastlingEnabled}, Right : {chessEngine.CB.whiteLargeCastlingEnabled}";
+        
+        castleBlackState = $"Left : {chessEngine.BlackCastlingState.Left}, Right : {chessEngine.BlackCastlingState.Right}";
+        castleWhiteState = $"Left : {chessEngine.WhiteCastlingState.Left}, Right : {chessEngine.WhiteCastlingState.Right}";
     }
 
     private void CleanInfo()
@@ -271,8 +272,8 @@
 
     private async Task HandleDragDroped(DragEventArgs e, Position destPosition)
     {
-        Piece piece = chessEngine.CB[originalPosition]!;
-        (bool isLeftCastleStateChanged, bool isRightCastleStateChanged) = CommonUtils.IsDestinationStateChanged(piece, chessEngine.CB);
+        Piece piece = chessEngine.GetPiece(originalPosition);
+        (bool isLeftCastleStateChanged, bool isRightCastleStateChanged) = CommonUtils.IsDestinationStateChanged(piece, chessEngine._boardManager.Board);
         bool isCastle = piece.Type == PieceType.King && Math.Abs(originalPosition.X - destPosition.X) >=2;
 
         Destination destination = new Destination(destPosition.Y, destPosition.X, isLeftCastleStateChanged, isRightCastleStateChanged, isCastle);

@@ -117,13 +117,13 @@ namespace ChessCommon
         }
 
 
-        public static (bool, bool) GetCastleState(PieceColor pieceColor, Board board)
+        public static (bool Left , bool Right) GetCastleState(PieceColor pieceColor, Board board)
         {
-            bool smallCastlingEnabled = pieceColor == PieceColor.White ? board.whiteSmallCastlingEnabled : board.blackSmallCastlingEnabled;
-            bool largeCastlingEnabled = pieceColor == PieceColor.White ? board.whiteLargeCastlingEnabled : board.blackLargeCastlingEnabled;
-            return (smallCastlingEnabled, largeCastlingEnabled);
+            if (pieceColor == PieceColor.White)
+                return (board.whiteLeftCastlingEnabled,board.whiteRightCastlingEnabled);
+            else
+                return (board.blackLeftCastlingEnabled,board.blackRightCastlingEnabled);
         }
-
 
         public static string Pretify(Position position)
         {
@@ -138,16 +138,16 @@ namespace ChessCommon
                 return (false, false);
 
 
-            (bool smallCastlingEnabled, bool largeCastlingEnabled) = GetCastleState(piece.Color, board);
+            (bool leftCastlingEnabled, bool rightCastlingEnabled) = GetCastleState(piece.Color, board);
 
             if (piece.Type == PieceType.King)
-                return (smallCastlingEnabled, largeCastlingEnabled);
+                return (leftCastlingEnabled, rightCastlingEnabled);
 
             if (piece.Type == PieceType.Rook)
-                return (smallCastlingEnabled && piece.Position.X == 0, largeCastlingEnabled && piece.Position.X == 7);
+                return (leftCastlingEnabled && piece.Position.X == 0, rightCastlingEnabled && piece.Position.X == 7);
 
 
-            return (smallCastlingEnabled, largeCastlingEnabled);
+            return (leftCastlingEnabled, rightCastlingEnabled);
         }
     }
 

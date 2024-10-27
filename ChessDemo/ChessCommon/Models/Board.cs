@@ -12,13 +12,13 @@ namespace ChessCommon.Models
 
         public const int MAX_COLS = 8;
 
-        public bool whiteSmallCastlingEnabled = true;
-        public bool whiteLargeCastlingEnabled = true;
-        public bool WhiteCastlingEnabled { get => whiteSmallCastlingEnabled || whiteLargeCastlingEnabled; }
+        public bool whiteRightCastlingEnabled = true;
+        public bool whiteLeftCastlingEnabled = true;
+        public bool WhiteCastlingEnabled { get => whiteRightCastlingEnabled || whiteLeftCastlingEnabled; }
 
-        public bool blackSmallCastlingEnabled = true;
-        public bool blackLargeCastlingEnabled = true;
-        public bool BlackCastlingEnabled { get => blackSmallCastlingEnabled || blackLargeCastlingEnabled; }
+        public bool blackRightCastlingEnabled = true;
+        public bool blackLeftCastlingEnabled = true;
+        public bool BlackCastlingEnabled { get => blackRightCastlingEnabled || blackLeftCastlingEnabled; }
 
         public Board(Piece?[,] pieces)
         {
@@ -43,28 +43,27 @@ namespace ChessCommon.Models
         public (bool, bool) GetCastleState(PieceColor color)
         {
             return (color == PieceColor.White) ?
-                (whiteSmallCastlingEnabled, whiteLargeCastlingEnabled) :
-                (blackSmallCastlingEnabled, blackLargeCastlingEnabled);
+                (whiteRightCastlingEnabled, whiteLeftCastlingEnabled) :
+                (blackRightCastlingEnabled, blackLeftCastlingEnabled);
         }
 
-        public void UpdateCastleState(PieceColor color, bool newStatus, bool isSmallCastlingEnabled, bool isLargeCastlingEnabled)
+        public void UpdateCastleState(PieceColor color, bool newStatus, bool isLeftCastlingEnabled,bool isRightCastlingEnabled)
         {
             if (color == PieceColor.White)
             {
+                if (isRightCastlingEnabled)
+                    whiteRightCastlingEnabled = newStatus;
 
-                if (isSmallCastlingEnabled)
-                    whiteSmallCastlingEnabled = newStatus;
-
-                if (isLargeCastlingEnabled)
-                    whiteLargeCastlingEnabled = newStatus;
+                if (isLeftCastlingEnabled)
+                    whiteLeftCastlingEnabled = newStatus;
             }
             else
             {
-                if (isSmallCastlingEnabled)
-                    blackSmallCastlingEnabled = newStatus;
+                if (isRightCastlingEnabled)
+                    blackRightCastlingEnabled = newStatus;
 
-                if (isLargeCastlingEnabled)
-                    blackLargeCastlingEnabled = newStatus;
+                if (isLeftCastlingEnabled)
+                    blackLeftCastlingEnabled = newStatus;
             }
         }
 

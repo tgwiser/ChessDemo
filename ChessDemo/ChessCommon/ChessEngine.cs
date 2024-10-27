@@ -12,58 +12,55 @@ namespace ChessCommon
     {
         public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
+        public (bool Left, bool Right) BlackCastlingState { get{ return (_boardManager.Board.blackLeftCastlingEnabled, _boardManager.Board.blackRightCastlingEnabled); } }
+
+        public (bool Left, bool Right) WhiteCastlingState { get { return (_boardManager.Board.whiteLeftCastlingEnabled, _boardManager.Board.whiteRightCastlingEnabled); } }
+
+
         GameEvaluator gameEvaluator;
 
         public IPositionEvaluator PositionEvaluatorEngine { get; }
 
-        public Board CB;
+        public IBoardManager _boardManager;
 
         private bool standardiseCastlingPositions;
 
         /// <summary>
         /// Creates new chess board with default pieces positions
         /// </summary>
-        public ChessEngine(IPositionEvaluator positionEvaluator)
+        public ChessEngine(IPositionEvaluator positionEvaluator, IBoardManager boardManager)
         {
             PositionEvaluatorEngine = positionEvaluator;
-            CB = new Board(CommonUtils.GetInitChessPices());
-            PositionEvaluatorEngine.InitPieces(CB.Pieces);
-            gameEvaluator = new GameEvaluator(PositionEvaluatorEngine, CB);
+            var board  = new Board(CommonUtils.GetInitChessPices());
+            PositionEvaluatorEngine.InitPieces(board.Pieces);
+            gameEvaluator = new GameEvaluator(PositionEvaluatorEngine, board);
+            _boardManager = boardManager;
+            _boardManager.Board = board;
         }
 
 
         public void DropPiece(Position srcPosition, Destination destPosition)
         {
             // Moving piece to its new position
-            Move move = new Move(srcPosition, destPosition, CB[srcPosition]!, CB[destPosition]!);
+            Move move = new Move(
+                srcPosition,
+                destPosition, 
+                GetPiece(srcPosition),
+                GetPiece(destPosition));
+
             move.Piece.Position = move.DestPosition;
             DropPiece(move);
         }
 
+        public Piece GetPiece(Position position)
+        {
+            return _boardManager.GetPiece(position);
+        }
+
         internal void DropPiece(Move move)
         {
-            CB.Pieces[move.DestPosition.Y, move.DestPosition.X] = move.Piece;
-
-            //Change pawn to queen
-            if (move.Piece.Type == PieceType.Pawn && (move.DestPosition.Y == 7 || move.DestPosition.Y == 0))
-            {
-                move.Piece.Type = PieceType.Queen;
-                move.Piece.OriginalPieceType = PieceType.Pawn;
-            }
-
-            CB.UpdateCastleState(move.Piece.Color, false, move.DestPosition.IsLeftCastleStateChanged, move.DestPosition.IsRightCastleStateChanged);
-
-            if (move.IsCastle)
-            {
-                var theRock = CB[move.Castle.SrcRock]!;
-                theRock.Position = move.Castle.DestRock;
-                CB.Pieces[move.DestPosition.Y, move.Castle.DestRock.X] = theRock;
-                CB.Pieces[move.DestPosition.Y, move.Castle.SrcRock.X] = null;
-            }
-
-
-            // Clearing old position
-            CB.Pieces[move.SrcPosition.Y, move.SrcPosition.X] = null;
+            //Update the board.
+            _boardManager.DropPiece(move);
 
             //Changing turn
             CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
@@ -71,48 +68,21 @@ namespace ChessCommon
 
         internal void RestorePiece(Move move)
         {
-            // Moving piece to its original position
-            move.Piece.Position = move.SrcPosition;
-            CB.Pieces[move.SrcPosition.Y, move.SrcPosition.X] = move.Piece;
-
-            // Clearing new position / or setting captured piece back
-            CB.Pieces[move.DestPosition.Y, move.DestPosition.X] = move.CapturedPiece;
-
-            CB.UpdateCastleState(move.Piece.Color, true, move.DestPosition.IsLeftCastleStateChanged, move.DestPosition.IsRightCastleStateChanged);
-
-            if (move.IsCastle)
-            {
-                var theRock = CB[move.Castle.DestRock]!;
-                theRock.Position = move.Castle.SrcRock;
-                CB.Pieces[move.Castle.SrcRock.Y, move.Castle.SrcRock.X] = theRock;
-                CB.Pieces[move.Castle.DestRock.Y, move.Castle.DestRock.X] = null;
-            }
-
-
-            if (move.Piece.OriginalPieceType == PieceType.Pawn)
-                move.Piece.Type = PieceType.Pawn;
+            //Update the board.
+            _boardManager.RestorePiece(move);
 
             //Changing turn
             CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
         }
 
-        public (bool, bool) GetCastleState(Position position)
-        {
-            PieceColor pieceColor = CB[position]!.Color;
-            bool smallCastlingEnabled = pieceColor == PieceColor.White ? CB.whiteSmallCastlingEnabled : CB.blackSmallCastlingEnabled;
-            bool largeCastlingEnabled = pieceColor == PieceColor.White ? CB.whiteLargeCastlingEnabled : CB.blackLargeCastlingEnabled;
-            return (smallCastlingEnabled, largeCastlingEnabled);
-        }
-
-
         public bool IsLegalMove(Position position, Destination destPosition)
         {
-            Piece piece = CB[position]!;
+            Piece piece = _boardManager.GetPiece(position);
 
             if (piece == null || piece.Color != CurrentPlayer)
                 return false;
 
-            List<Destination> legalPositions = PositionEvaluatorEngine.GetLegalPositions(piece, CB);
+            List<Destination> legalPositions = PositionEvaluatorEngine.GetLegalPositions(piece, _boardManager.Board);
 
             var isLegalMove = legalPositions.Exists(lp => lp == destPosition);
             return isLegalMove;
@@ -129,7 +99,7 @@ namespace ChessCommon
 
         public GameEvaluator EvaluateBestMove(int depth, PieceColor color)
         {
-            var g = new GameEvaluator(PositionEvaluatorEngine, CB);
+            var g = new GameEvaluator(PositionEvaluatorEngine, _boardManager.Board);
             var m = g.EvaluateBestMove(depth, color);
             return g;
         }
@@ -149,13 +119,13 @@ namespace ChessCommon
 
         public void SaveBoard(string fileName)
         {
-            CommonUtils.SaveBoard(fileName, CB.Pieces);
+            CommonUtils.SaveBoard(fileName, _boardManager.Board.Pieces);
         }
 
         public void LoadBoard(string fileName)
         {
             var pieces = CommonUtils.GetSavedPieces(fileName);
-            CB = new Board(pieces);
+            _boardManager.Board = new Board(pieces);
             PositionEvaluatorEngine.InitPieces(pieces);
         }
 

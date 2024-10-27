@@ -106,7 +106,7 @@ namespace ChessCommon.Evaluators
         {
             List<Destination> legalMoves = new();
 
-            (bool smallCastlingEnabled, bool largeCastlingEnabled) = CommonUtils.GetCastleState(piece.Color, board);
+            (bool leftCastlingEnabled,bool rightCastlingEnabled) = CommonUtils.GetCastleState(piece.Color, board);
 
             for (short x = -1; x <= 1; x++)
             {
@@ -114,16 +114,16 @@ namespace ChessCommon.Evaluators
                 {
                     if (x != 0 || y != 0)
                     {
-                        Destination newPosition = new Destination(piece.Position.Y + y, piece.Position.X + x, smallCastlingEnabled, largeCastlingEnabled);
+                        Destination newPosition = new Destination(piece.Position.Y + y, piece.Position.X + x, rightCastlingEnabled, leftCastlingEnabled);
                         TryAddPosition(pieceColor, newPosition, ref legalMoves);
                     }
                 }
             }
 
-            if (smallCastlingEnabled)
+            if (rightCastlingEnabled)
                 TryAppendSmallCastlePosition(piece.Position, ref legalMoves);
 
-            if (largeCastlingEnabled)
+            if (leftCastlingEnabled)
                 TryAppendLargeCastlePosition(piece.Position, ref legalMoves);
 
 

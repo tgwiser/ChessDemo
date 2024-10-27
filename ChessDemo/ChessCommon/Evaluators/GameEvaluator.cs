@@ -26,7 +26,45 @@ namespace ChessCommon.Evaluators
         {
             _positionEvaluator = positionEvaluator;
             _board = board;
-            InitPlayersPieces();
+            InitPlayersPieces(board);
+        }
+
+    
+
+        private void InitPlayersPieces(Board board)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    var piece = board.Pieces[i, j]!;
+                    if (piece != null)
+                    {
+                        var key = GetPieceHashKey(piece.Position);
+                        var pieces = piece.Color == PieceColor.White ? WhitePieces : BlackPieces;
+                        pieces.Add(key, piece);
+                    }
+                }
+            }
+        }
+
+        private int EvaluateGame(Board board)
+        {
+            int totalWhite = 0;
+            int totalBlack = 0;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    var piece = board.Pieces[x, y]!;
+
+                    if (piece != null && piece.Color == PieceColor.White)
+                        totalWhite = EvaluatePiece(piece);
+                    if (piece != null && piece.Color == PieceColor.Black)
+                        totalBlack = EvaluatePiece(piece);
+                }
+            }
+            return totalWhite - totalBlack;
         }
 
         public Move? EvaluateBestMove(int depth, PieceColor selectedPlayer)
@@ -68,42 +106,6 @@ namespace ChessCommon.Evaluators
         }
 
 
-
-        private void InitPlayersPieces()
-        {
-            for (int i = 0; i < 8; i++)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    var piece = _board.Pieces[i, j]!;
-                    if (piece != null)
-                    {
-                        var key = GetPieceHashKey(piece.Position);
-                        var pieces = piece.Color == PieceColor.White ? WhitePieces : BlackPieces;
-                        pieces.Add(key, piece);
-                    }
-                }
-            }
-        }
-
-        private int EvaluateGame(Board board)
-        {
-            int totalWhite = 0;
-            int totalBlack = 0;
-            for (int x = 0; x < 8; x++)
-            {
-                for (int y = 0; y < 8; y++)
-                {
-                    var piece = board.Pieces[x, y]!;
-
-                    if (piece != null && piece.Color == PieceColor.White)
-                        totalWhite = EvaluatePiece(piece);
-                    if (piece != null && piece.Color == PieceColor.Black)
-                        totalBlack = EvaluatePiece(piece);
-                }
-            }
-            return totalWhite - totalBlack;
-        }
 
         private int EvaluateBestMove(int depth, PieceColor selectedPlayer, bool isMax)
         {
@@ -199,16 +201,6 @@ namespace ChessCommon.Evaluators
             if (move.CapturedPiece != null)
                 oponmentPieces.Remove(destinationKey);
 
-
-            if (!currentPieces.ContainsKey(playerKey))
-            {
-
-            }
-            if (currentPieces.ContainsKey(destinationKey))
-            {
-
-            }
-
             currentPieces.Remove(playerKey);
             currentPieces.Add(destinationKey, move.Piece);
 
@@ -223,8 +215,6 @@ namespace ChessCommon.Evaluators
             //Changing turn
             CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
         }
-
-
 
 
         private bool IsBestValue(int bestValue, int captureValue, bool isMax)
