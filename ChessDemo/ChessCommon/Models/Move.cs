@@ -10,7 +10,7 @@ namespace ChessCommon.Models
     {
         public bool IsCastle { get { return Castle != null; } }
 
-        public Castle Castle;
+        public Castle? Castle;
 
         /// <summary>
         /// Initializes new Move object by given positions

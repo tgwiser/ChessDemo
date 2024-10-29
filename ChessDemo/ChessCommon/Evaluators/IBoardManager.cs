@@ -10,13 +10,13 @@ namespace ChessCommon.Evaluators
 
     public interface IBoardManager
     {
-         Board Board { get; set; }
+        Board? Board { get;  set; }
 
         void DropPiece(Move move);
 
         void RestorePiece(Move move);
 
         (bool, bool) GetCastleState(Position position);
-        Piece GetPiece(Position srcPosition);
+        Piece GetPiece(Position position);
     }
 }

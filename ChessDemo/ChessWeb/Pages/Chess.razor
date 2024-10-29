@@ -316,7 +316,7 @@
 
             if (isAutoPay && !isMate)
             {
-                await Task.Delay(1000);
+                await Task.Delay(1000 / depth);
                 Play();
             }
         }
