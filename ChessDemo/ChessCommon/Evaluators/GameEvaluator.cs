@@ -100,7 +100,6 @@ public class GameEvaluator : IGameEvaluator
                         {
                             SelectedMove = new Move(piece.Position, destPosition, _boardManager.GetPiece(piece.Position), _boardManager.GetPiece(destPosition));
                             BestValue = currentLevelBestValue;
-
                         }
                     }
                 }

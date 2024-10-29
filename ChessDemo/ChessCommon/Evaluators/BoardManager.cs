@@ -6,12 +6,6 @@ public class BoardManager: IBoardManager
 {
     public Board? Board { get; set; }
 
-    public BoardManager()
-    {
-
-    }
-
-
     public void DropPiece(Move move)
     {
         //Change pawn to queen
@@ -26,7 +20,7 @@ public class BoardManager: IBoardManager
         move.Piece.Position = move.DestPosition;
 
         // Clearing old position
-        Board.Pieces[move.SrcPosition.Y, move.SrcPosition.X] = null;
+        Board[move.SrcPosition] = null;
 
 
         //Update castle state (For rock\King move)
@@ -43,14 +37,14 @@ public class BoardManager: IBoardManager
 
             Piece theRock =GetPiece(move.Castle.SrcRock);
             theRock.Position = move.Castle.DestRock;
-            Board.Pieces[move.DestPosition.Y, move.Castle.DestRock.X] = theRock;
-            Board.Pieces[move.DestPosition.Y, move.Castle.SrcRock.X] = null;
+            Board[move.Castle.DestRock] = theRock;
+            Board[move.Castle.SrcRock] = null;
         }
     }
 
     private void UpdateLeftCastleMoveAndBoard(Move move, Board board)
     {
-        if (board.GetCastleState(move.Piece.Color).LeftCastlingEnabled)
+        if (GetCastleState(move.Piece.Color).LeftCastlingEnabled)
         {
             move.LeftCastlingEnabled = false;
             board.UpdateLeftCastleState(move.Piece.Color, false);
@@ -59,7 +53,7 @@ public class BoardManager: IBoardManager
 
     private void UpdateRightCastleMoveAndBoard(Move move, Board board)
     {
-        if (board.GetCastleState(move.Piece.Color).RightCastlingEnabled)
+        if (GetCastleState(move.Piece.Color).RightCastlingEnabled)
         {
             move.RightCastlingEnabled = false;
             board.UpdateRightCastleState(move.Piece.Color, false);
@@ -71,10 +65,10 @@ public class BoardManager: IBoardManager
     {
         // Moving piece to its original position
         move.Piece.Position = move.SrcPosition;
-        Board!.Pieces[move.SrcPosition.Y, move.SrcPosition.X] = move.Piece;
+        Board![move.SrcPosition] = move.Piece;
 
         // Clearing dest position / or setting captured piece back
-        Board.Pieces[move.DestPosition.Y, move.DestPosition.X] = move.CapturedPiece;
+        Board[move.DestPosition] = move.CapturedPiece;
 
 
         //Update castle state (For rock\King move)
@@ -89,27 +83,25 @@ public class BoardManager: IBoardManager
         {
             var theRock = Board[move.Castle.DestRock]!;
             theRock.Position = move.Castle.SrcRock;
-            Board.Pieces[move.Castle.SrcRock.Y, move.Castle.SrcRock.X] = theRock;
-            Board.Pieces[move.Castle.DestRock.Y, move.Castle.DestRock.X] = null;
+            Board[move.Castle.SrcRock] = theRock;
+            Board[move.Castle.DestRock] = null;
         }
 
         //Restoring pawn if needed
         if (move.Piece.OriginalPieceType == PieceType.Pawn)
             move.Piece.Type = PieceType.Pawn;
-;
     }
 
-    public (bool, bool) GetCastleState(Position position)
+    public (bool LeftCastlingEnabled, bool RightCastlingEnabled) GetCastleState(PieceColor color)
     {
-        PieceColor pieceColor = Board[position]!.Color;
-        bool rightCastlingEnabled = pieceColor == PieceColor.White ? Board.whiteRightCastlingEnabled : Board.blackRightCastlingEnabled;
-        bool leftCastlingEnabled = pieceColor == PieceColor.White ? Board.whiteLeftCastlingEnabled : Board.blackLeftCastlingEnabled;
-        return (rightCastlingEnabled, leftCastlingEnabled);
+        return (color == PieceColor.White) ?
+            (Board!.whiteRightCastlingEnabled, Board!.whiteRightCastlingEnabled) :
+            (Board!.blackLeftCastlingEnabled, Board!.blackRightCastlingEnabled);
     }
 
     public Piece GetPiece(Position position)
     {
-        return Board[position]!;
+        return Board![position]!;
     }
 
 }

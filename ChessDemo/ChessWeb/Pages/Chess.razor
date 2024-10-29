@@ -300,13 +300,7 @@
 
     private async Task HandleDragDroped(DragEventArgs e, Position destPosition)
     {
-        Piece piece = chessEngine.GetPiece(originalPosition);
-        (bool isLeftCastleStateChanged, bool isRightCastleStateChanged) = CommonUtils.IsDestinationStateChanged(piece, chessEngine._boardManager.Board);
-        bool isCastle = piece.Type == PieceType.King && Math.Abs(originalPosition.X - destPosition.X) >=2;
-
         Position destination = new Position(destPosition.Y, destPosition.X);
-         //Position destination = new Position(destPosition.Y, destPosition.X, isLeftCastleStateChanged, isRightCastleStateChanged, isCastle);
-
         var isLegalMove = chessEngine.IsLegalMove(originalPosition, destination);
 
         if (isLegalMove)

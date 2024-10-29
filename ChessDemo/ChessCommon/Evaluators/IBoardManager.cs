@@ -16,7 +16,8 @@ namespace ChessCommon.Evaluators
 
         void RestorePiece(Move move);
 
-        (bool, bool) GetCastleState(Position position);
+        (bool LeftCastlingEnabled, bool RightCastlingEnabled) GetCastleState(PieceColor color);
+
         Piece GetPiece(Position position);
     }
 }
