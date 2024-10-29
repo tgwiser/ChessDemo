@@ -22,9 +22,9 @@ public class PositionEvaluator : IPositionEvaluator
         board = _boardManager.Board!;
     }
 
-    public List<Destination> GetLegalPositions(Piece piece)
+    public List<Position> GetLegalPositions(Piece piece)
     {
-        List<Destination> legalPositions = new List<Destination>();
+        var legalPositions = new List<Position>();
         Position position = piece.Position;
         switch (piece.Type)
         {
@@ -51,12 +51,12 @@ public class PositionEvaluator : IPositionEvaluator
         return legalPositions;
     }
 
-    private List<Destination> GetLegalPawnPositions(Position position, Piece piece)
+    private List<Position> GetLegalPawnPositions(Position position, Piece piece)
     {
         short direction = (short)(piece.Color == PieceColor.White ? 1 : -1);
 
 
-        List<Destination> legalMoves = new();
+        List<Position> legalMoves = new();
 
         //Move up
         AddMovePawnPosition(piece, direction, position.X, position.Y, ref legalMoves);
@@ -68,9 +68,9 @@ public class PositionEvaluator : IPositionEvaluator
         return legalMoves;
     }
 
-    private void AddMovePawnPosition(Piece piece, short direction, int x, int y, ref List<Destination> legalMoves)
+    private void AddMovePawnPosition(Piece piece, short direction, int x, int y, ref List<Position> legalMoves)
     {
-        Destination newPosition = new Destination(y + direction, x);
+        var newPosition = new Position(y + direction, x);
 
         if (newPosition.HasValue)
         {
@@ -87,10 +87,10 @@ public class PositionEvaluator : IPositionEvaluator
         }
     }
 
-    private void AddEatPawnPosition(Piece piece, int x, int y, ref List<Destination> legalMoves)
+    private void AddEatPawnPosition(Piece piece, int x, int y, ref List<Position> legalMoves)
     {
         int legalMovesCount = legalMoves.Count;
-        Destination newPosition = new Destination(y, x);
+        var newPosition = new Position(y, x);
         if (newPosition.HasValue)
         {
             var destPiece = board[newPosition]!;
@@ -100,9 +100,9 @@ public class PositionEvaluator : IPositionEvaluator
         }
     }
 
-    private List<Destination> GetLegalKingPositions(Piece piece, PieceColor pieceColor, Board board)
+    private List<Position> GetLegalKingPositions(Piece piece, PieceColor pieceColor, Board board)
     {
-        List<Destination> legalMoves = new();
+        List<Position> legalMoves = new();
 
         (bool leftCastlingEnabled,bool rightCastlingEnabled) = CommonUtils.GetCastleState(piece.Color, board);
 
@@ -112,7 +112,7 @@ public class PositionEvaluator : IPositionEvaluator
             {
                 if (x != 0 || y != 0)
                 {
-                    Destination newPosition = new Destination(piece.Position.Y + y, piece.Position.X + x, rightCastlingEnabled, leftCastlingEnabled);
+                    Position newPosition = new Position(piece.Position.Y + y, piece.Position.X + x);
                     TryAddPosition(pieceColor, newPosition, ref legalMoves);
                 }
             }
@@ -128,9 +128,9 @@ public class PositionEvaluator : IPositionEvaluator
         return legalMoves;
     }
 
-    private List<Destination> GetLegalRockPositions(Piece piece, PieceColor pieceColor)
+    private List<Position> GetLegalRockPositions(Piece piece, PieceColor pieceColor)
     {
-        List<Destination> legalMoves = new();
+        List<Position> legalMoves = new();
         var position = piece.Position;
 
         //right
@@ -164,9 +164,9 @@ public class PositionEvaluator : IPositionEvaluator
         return legalMoves;
     }
 
-    private List<Destination> GetLegalBishopPositions(Piece piece, PieceColor pieceColor)
+    private List<Position> GetLegalBishopPositions(Piece piece, PieceColor pieceColor)
     {
-        List<Destination> legalMoves = new List<Destination>();
+        List<Position> legalMoves = new List<Position>();
         var position = piece.Position;
         //right-up
         int idx = 1;
@@ -196,9 +196,9 @@ public class PositionEvaluator : IPositionEvaluator
         return legalMoves;
     }
 
-    private List<Destination> GetLegalNightPositions(Piece piece, PieceColor pieceColor)
+    private List<Position> GetLegalNightPositions(Piece piece, PieceColor pieceColor)
     {
-        List<Destination> legalMoves = new();
+        List<Position> legalMoves = new();
         var position = piece.Position;
         TryAddPosition(pieceColor, position.X + 1, position.Y + 2, ref legalMoves);
         TryAddPosition(pieceColor, position.X + 1, position.Y - 2, ref legalMoves);
@@ -211,22 +211,22 @@ public class PositionEvaluator : IPositionEvaluator
         return legalMoves;
     }
 
-    private List<Destination> GetLegalQueenPositions(Piece piece, PieceColor pieceColor)
+    private List<Position> GetLegalQueenPositions(Piece piece, PieceColor pieceColor)
     {
-        List<Destination> legalRockMoves = GetLegalRockPositions(piece, pieceColor);
-        List<Destination> legalBishopMoves = GetLegalBishopPositions(piece, pieceColor);
+        var legalRockMoves = GetLegalRockPositions(piece, pieceColor);
+        var legalBishopMoves = GetLegalBishopPositions(piece, pieceColor);
 
         legalRockMoves.AddRange(legalBishopMoves);
         return legalRockMoves;
     }
 
-    private bool TryAddPosition(PieceColor pieceColor, int x, int y, ref List<Destination> legalMoves)
+    private bool TryAddPosition(PieceColor pieceColor, int x, int y, ref List<Position> legalMoves)
     {
-        Destination newPosition = new Destination(y, x);
+        Position newPosition = new Position(y, x);
         return TryAddPosition(pieceColor, newPosition, ref legalMoves);
     }
 
-    private bool TryAddPosition(PieceColor pieceColor, Destination newPosition, ref List<Destination> legalMoves)
+    private bool TryAddPosition(PieceColor pieceColor, Position newPosition, ref List<Position> legalMoves)
     {
         if (!newPosition.HasValue)
             return false;
@@ -240,11 +240,11 @@ public class PositionEvaluator : IPositionEvaluator
         return destPiece == null;
     }
 
-    private bool TryAppendSmallCastlePosition(Position position, ref List<Destination> legalMoves)
+    private bool TryAppendSmallCastlePosition(Position position, ref List<Position> legalMoves)
     {
         for (int i = 1; i <= 2; i++)
         {
-            var kingPosition = new Destination(position.Y, position.X + i, true, false, true);
+            var kingPosition = new Position(position.Y, position.X + i);
             if (board[kingPosition] != null)
                 return false;
 
@@ -254,11 +254,11 @@ public class PositionEvaluator : IPositionEvaluator
         return true;
     }
 
-    private bool TryAppendLargeCastlePosition(Position position, ref List<Destination> legalMoves)
+    private bool TryAppendLargeCastlePosition(Position position, ref List<Position> legalMoves)
     {
         for (int i = 1; i <= 3; i++)
         {
-            var kingPosition = new Destination(position.Y, position.X - i, false, true, true);
+            var kingPosition = new Position(position.Y, position.X - i);
             if (board[kingPosition] != null)
                 return false;
 

@@ -68,4 +68,14 @@ public class Position
     /// Whether Y is in range [0; ChessBoard.MAX_ROWS[
     /// </summary>
     private bool HasValueY => Y >= 0 && Y < CommonUtils.MAX_ROWS;
+
+    public static bool operator ==(Position b1, Position b2)
+    {
+        return b1.X == b2.X && b1.Y == b2.Y;
+    }
+
+    public static bool operator !=(Position b1, Position b2)
+    {
+        return b1.X != b2.X || b1.Y != b2.Y;
+    }
 }

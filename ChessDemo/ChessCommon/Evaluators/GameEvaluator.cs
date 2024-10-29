@@ -84,9 +84,9 @@ public class GameEvaluator : IGameEvaluator
         var currentLevelBestValue = isMax ? -1000 : 1000;
         foreach (Piece piece in playerPieces.Values.ToList())
         {
-            List<Destination> legalPositions = _positionEvaluator.GetLegalPositions(piece);
+            var legalPositions = _positionEvaluator.GetLegalPositions(piece);
 
-            foreach (Destination destPosition in legalPositions)
+            foreach (Position destPosition in legalPositions)
             {
                 Counter++;
                 int capturePieceValue = EvaluatePiece(piece, destPosition, isMax);

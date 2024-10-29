@@ -36,7 +36,7 @@ public class ChessEngine
      
     }
 
-    public void DropPiece(Position srcPosition, Destination destPosition)
+    public void DropPiece(Position srcPosition, Position destPosition)
     {
         // Moving piece to its new position
         Move move = new Move(
@@ -86,14 +86,14 @@ public class ChessEngine
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
     }
 
-    public bool IsLegalMove(Position position, Destination destPosition)
+    public bool IsLegalMove(Position position, Position destPosition)
     {
         Piece piece = _boardManager.GetPiece(position);
 
         if (piece == null || piece.Color != CurrentPlayer)
             return false;
 
-        List<Destination> legalPositions = PositionEvaluatorEngine.GetLegalPositions(piece);
+       var legalPositions = PositionEvaluatorEngine.GetLegalPositions(piece);
 
         var isLegalMove = legalPositions.Exists(lp => lp == destPosition);
         return isLegalMove;

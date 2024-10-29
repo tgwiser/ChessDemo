@@ -1,4 +1,5 @@
 ﻿
+
 namespace ChessCommon.Models;
 
 public class Board
@@ -35,30 +36,46 @@ public class Board
     /// <param name="y">0->8</param>
     public Piece? this[int x, int y] => Pieces[y, x];
 
-    public (bool, bool) GetCastleState(PieceColor color)
+    public (bool LeftCastlingEnabled, bool RightCastlingEnabled) GetCastleState(PieceColor color)
     {
         return (color == PieceColor.White) ?
-            (whiteRightCastlingEnabled, whiteLeftCastlingEnabled) :
-            (blackRightCastlingEnabled, blackLeftCastlingEnabled);
+            (whiteLeftCastlingEnabled,whiteRightCastlingEnabled) :
+            (blackLeftCastlingEnabled,blackRightCastlingEnabled);
     }
 
-    public void UpdateCastleState(PieceColor color, bool newStatus, bool isLeftCastlingEnabled,bool isRightCastlingEnabled)
+    public void UpdateCastleState(PieceColor color, bool? isLeftCastlingEnabled,bool? isRightCastlingEnabled)
     {
         if (color == PieceColor.White)
         {
-            if (isRightCastlingEnabled)
-                whiteRightCastlingEnabled = newStatus;
+            if (isLeftCastlingEnabled.HasValue)
+                whiteLeftCastlingEnabled = isLeftCastlingEnabled.Value;
 
-            if (isLeftCastlingEnabled)
-                whiteLeftCastlingEnabled = newStatus;
+            if (isRightCastlingEnabled.HasValue)
+                whiteRightCastlingEnabled = isRightCastlingEnabled.Value;
         }
         else
         {
-            if (isRightCastlingEnabled)
-                blackRightCastlingEnabled = newStatus;
+            if (isLeftCastlingEnabled.HasValue)
+                blackLeftCastlingEnabled = isLeftCastlingEnabled.Value;
 
-            if (isLeftCastlingEnabled)
-                blackLeftCastlingEnabled = newStatus;
+            if (isRightCastlingEnabled.HasValue)
+                blackRightCastlingEnabled = isRightCastlingEnabled.Value;
         }
+    }
+
+    internal void UpdateLeftCastleState(PieceColor color, bool v)
+    {
+        if (color == PieceColor.White)
+            whiteLeftCastlingEnabled = v;
+        else
+            blackLeftCastlingEnabled = v;
+    }
+
+    internal void UpdateRightCastleState(PieceColor color, bool v)
+    {
+        if (color == PieceColor.White)
+            whiteRightCastlingEnabled = v;
+        else
+            blackRightCastlingEnabled = v;
     }
 }

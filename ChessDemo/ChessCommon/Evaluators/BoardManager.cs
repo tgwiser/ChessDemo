@@ -23,21 +23,47 @@ public class BoardManager: IBoardManager
 
         //Adding to new position
         Board!.Pieces[move.DestPosition.Y, move.DestPosition.X] = move.Piece;
-        move.Piece.Position= move.DestPosition;
+        move.Piece.Position = move.DestPosition;
 
         // Clearing old position
         Board.Pieces[move.SrcPosition.Y, move.SrcPosition.X] = null;
 
+
         //Update castle state (For rock\King move)
-        Board.UpdateCastleState(move.Piece.Color, false, move.DestPosition.IsLeftCastleStateChanged, move.DestPosition.IsRightCastleStateChanged);
+        if (move.IsLeftRock || move.Piece.Type == PieceType.King)
+            UpdateLeftCastleMoveAndBoard(move, Board);
+
+        if (move.IsRightRock || move.Piece.Type == PieceType.King)
+            UpdateRightCastleMoveAndBoard(move, Board);
 
         //Castle change the rock position as well
-        if (move.Castle!=null)
+        if (move.IsCastle)
         {
-            Piece theRock = Board[move.Castle.SrcRock]!;
+            move.Castle = new Castle(move.DestPosition);
+
+            Piece theRock =GetPiece(move.Castle.SrcRock);
             theRock.Position = move.Castle.DestRock;
             Board.Pieces[move.DestPosition.Y, move.Castle.DestRock.X] = theRock;
             Board.Pieces[move.DestPosition.Y, move.Castle.SrcRock.X] = null;
+        }
+    }
+
+    private void UpdateLeftCastleMoveAndBoard(Move move, Board board)
+    {
+        if (board.GetCastleState(move.Piece.Color).LeftCastlingEnabled)
+        {
+            move.LeftCastlingEnabled = false;
+            board.UpdateLeftCastleState(move.Piece.Color, false);
+        }
+    }
+
+    private void UpdateRightCastleMoveAndBoard(Move move, Board board)
+    {
+        if (board.GetCastleState(move.Piece.Color).RightCastlingEnabled)
+        {
+            move.RightCastlingEnabled = false;
+            board.UpdateRightCastleState(move.Piece.Color, false);
+        
         }
     }
 
@@ -50,11 +76,16 @@ public class BoardManager: IBoardManager
         // Clearing dest position / or setting captured piece back
         Board.Pieces[move.DestPosition.Y, move.DestPosition.X] = move.CapturedPiece;
 
+
         //Update castle state (For rock\King move)
-        Board.UpdateCastleState(move.Piece.Color, true, move.DestPosition.IsLeftCastleStateChanged, move.DestPosition.IsRightCastleStateChanged);
+        if (move.LeftCastlingEnabled.HasValue)
+            Board.UpdateLeftCastleState(move.Piece.Color, true);
+
+        if (move.RightCastlingEnabled.HasValue)
+            Board.UpdateRightCastleState(move.Piece.Color, true);
 
         //Castle change the rock position as well
-        if (move.Castle != null)
+        if (move.IsCastle && move.Castle != null)
         {
             var theRock = Board[move.Castle.DestRock]!;
             theRock.Position = move.Castle.SrcRock;

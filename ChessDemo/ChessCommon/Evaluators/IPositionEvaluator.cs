@@ -4,7 +4,7 @@ namespace ChessCommon.Evaluators;
 
 public interface IPositionEvaluator
 {
-    List<Destination> GetLegalPositions(Piece srcPiece);
+    List<Position> GetLegalPositions(Piece srcPiece);
 
     void InitPieces();
 }

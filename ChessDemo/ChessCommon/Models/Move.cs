@@ -8,14 +8,17 @@ namespace ChessCommon.Models
 {
     public class Move
     {
-        public bool IsCastle { get { return Castle != null; } }
+        public bool IsCastle;
 
         public Castle? Castle;
+
+        public bool IsLeftRock;
+        public bool IsRightRock;
 
         /// <summary>
         /// Initializes new Move object by given positions
         /// </summary>
-        public Move(Position originalPosition, Destination newPosition, Piece piece, Piece? capturedPiece)
+        public Move(Position originalPosition, Position newPosition, Piece piece, Piece? capturedPiece)
         {
             SrcPosition = originalPosition;
             DestPosition = newPosition;
@@ -23,8 +26,9 @@ namespace ChessCommon.Models
             Piece = piece;
             CapturedPiece = capturedPiece;
 
-            if (newPosition.IsCastle)
-                Castle = new Castle(DestPosition);
+            IsCastle = piece.Type == PieceType.King && Math.Abs(originalPosition.X - newPosition.X) >= 2;
+            IsLeftRock = piece.Type == PieceType.Rook && originalPosition.X == 0;
+            IsRightRock = piece.Type == PieceType.Rook && originalPosition.X == 7;
         }
 
 
@@ -41,7 +45,7 @@ namespace ChessCommon.Models
         /// <summary>
         /// New Position of moved piece
         /// </summary>
-        public Destination DestPosition { get; set; }
+        public Position DestPosition { get; set; }
 
         /// <summary>
         /// Captured piece (if exist) or null
@@ -64,8 +68,9 @@ namespace ChessCommon.Models
         /// 
         public bool HasValue => SrcPosition.HasValue && DestPosition.HasValue;
 
-        public bool? OriginalSmallCastleEnable { get; set; }
-        public bool? OriginalLargeCastleEnable { get; set; }
+
+        public bool? LeftCastlingEnabled { get; internal set; }
+        public bool? RightCastlingEnabled { get; internal set; }
 
         public override string ToString()
         {
