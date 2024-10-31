@@ -13,8 +13,7 @@ I will not use existing code - for learning purpose
 - Piece: the player, possition & type
 - Castle: This is a special move that add some more complexability (2 moves in one move)
 
-![Chess-Models drawio](https://github.com/user-attachments/assets/7d753a97-e20d-4b7c-b98f-138d81232080)
-
+<img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/8a469c1d-837c-4deb-b516-23ffdf1d7871">
 
 
 
@@ -24,7 +23,6 @@ I will not use existing code - for learning purpose
 - BoardManager: Responsible of getting & setting data on the board
 - GameEvaluator: highly efficient component that return the best move based on the depth search
   
-
-![Chess-Page-3 drawio (2)](https://github.com/user-attachments/assets/571ae7bd-f20b-4174-8341-4b0993db5d57)
+<img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/571ae7bd-f20b-4174-8341-4b0993db5d57">
 
 
