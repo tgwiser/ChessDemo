@@ -13,21 +13,18 @@ I will not use existing code - for learning purpose
 - Piece: the player, possition & type
 - Castle: This is a special move that add some more complexability (2 moves in one move)
 
-
-
-  
-![Chess drawio](https://github.com/user-attachments/assets/f5ee26c7-3cf0-4221-961c-10db6b36248d)
+![Chess-Models drawio](https://github.com/user-attachments/assets/7d753a97-e20d-4b7c-b98f-138d81232080)
 
 
 
 
-## Model design 
+## Appication design 
 - ChessEngine: the entry point (Facade Pattern)
 - PositionEvaluator: Responsible of returning all possible move by piece
 - BoardManager: Responsible of getting & setting data on the board
 - GameEvaluator: highly efficient component that return the best move based on the depth search
   
 
-![Chess-Page-3 drawio (1)](https://github.com/user-attachments/assets/82de6c8c-306f-47da-8858-9eca97e2b489)
+![Chess-Page-3 drawio (2)](https://github.com/user-attachments/assets/571ae7bd-f20b-4174-8341-4b0993db5d57)
 
 
