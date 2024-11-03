@@ -22,7 +22,6 @@ public class BoardManager: IBoardManager
         // Clearing old position
         Board[move.SrcPosition] = null;
 
-
         //Update castle state (For rock\King move)
         if (move.IsLeftRock || move.Piece.Type == PieceType.King)
             UpdateLeftCastleMoveAndBoard(move, Board);
@@ -104,4 +103,8 @@ public class BoardManager: IBoardManager
         return Board![position]!;
     }
 
+    public Piece? GetPiece(int y, int x)
+    {
+        return Board![y,x];
+    }
 }

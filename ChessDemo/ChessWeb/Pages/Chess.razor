@@ -187,8 +187,8 @@
     private ChessEngine chessEngine;
     private Position originalPosition;
     private string movePosition=  string.Empty;
-    private string moveCounter = string.Empty;
-    private string moveValue = string.Empty;
+    private int? moveCounter = null;
+    private int? moveValue = null;
     private string moveTime= string.Empty;
     private string evaluateMoveTime = string.Empty;
     private string currentPlayer = "";
@@ -237,8 +237,8 @@
 
         //Eval
         movePosition = string.Empty;
-        moveCounter = string.Empty;
-        moveValue = string.Empty;
+        moveCounter = null;
+        moveValue = null;
         evaluateMoveTime = string.Empty;
 
     }
@@ -281,12 +281,9 @@
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        var gameValue = chessEngine.EvaluateBestMove(depth, chessEngine.CurrentPlayer);
+        (movePosition, moveCounter, moveValue) = chessEngine.EvaluateBestMove(depth, chessEngine.CurrentPlayer);
 
-        moveValue = gameValue.BestValue.ToString();
-        movePosition = gameValue.SelectedMove;
-        moveCounter = gameValue.Counter.ToString() ?? string.Empty;
-
+      
         evaluateMoveTime = $"{stopwatch.Elapsed.Minutes}:{stopwatch.Elapsed.Seconds}:{stopwatch.Elapsed.Milliseconds}";
 
         stopwatch.Stop();

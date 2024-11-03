@@ -19,5 +19,7 @@ namespace ChessCommon.Evaluators
         (bool LeftCastlingEnabled, bool RightCastlingEnabled) GetCastleState(PieceColor color);
 
         Piece GetPiece(Position position);
+
+        Piece? GetPiece(int y, int x);
     }
 }

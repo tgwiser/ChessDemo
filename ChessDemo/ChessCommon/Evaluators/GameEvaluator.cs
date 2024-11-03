@@ -24,8 +24,6 @@ public class GameEvaluator : IGameEvaluator
         InitPlayersPieces(boardManager.Board!);
     }
 
-
-
     public void InitPlayersPieces(Board board)
     { 
         BlackPieces = new Dictionary<int, Piece>();
@@ -35,12 +33,14 @@ public class GameEvaluator : IGameEvaluator
         {
             for (int j = 0; j < 8; j++)
             {
-                var piece = board.Pieces[i, j]!;
+                var piece = _boardManager.GetPiece(i, j);
                 if (piece != null)
                 {
                     var key = GetPieceHashKey(piece.Position);
-                    var pieces = piece.Color == PieceColor.White ? WhitePieces : BlackPieces;
-                    pieces.Add(key, piece);
+                    if(piece.Color == PieceColor.White)
+                        WhitePieces.Add(key, piece);
+                    else
+                        BlackPieces.Add(key, piece);
                 }
             }
         }
@@ -54,11 +54,13 @@ public class GameEvaluator : IGameEvaluator
         {
             for (int y = 0; y < 8; y++)
             {
-                var piece = board.Pieces[x, y]!;
+                var piece = _boardManager.GetPiece(y, x);
+                if (piece == null)
+                    continue;
 
-                if (piece != null && piece.Color == PieceColor.White)
+                if (piece.Color == PieceColor.White)
                     totalWhite = EvaluatePiece(piece);
-                if (piece != null && piece.Color == PieceColor.Black)
+               else
                     totalBlack = EvaluatePiece(piece);
             }
         }
@@ -74,7 +76,6 @@ public class GameEvaluator : IGameEvaluator
 
         EvaluateBestMove(depth, selectedPlayer, true);
         return SelectedMove;
-
     }
 
 
@@ -91,6 +92,8 @@ public class GameEvaluator : IGameEvaluator
                 Counter++;
                 int capturePieceValue = EvaluatePiece(piece, destPosition, isMax);
 
+                Move move = new Move(piece.Position, destPosition, piece, _boardManager.GetPiece(destPosition));
+
                 if (depth == 1)
                 {
                     if (IsBestValue(currentLevelBestValue, capturePieceValue, isMax))
@@ -106,11 +109,10 @@ public class GameEvaluator : IGameEvaluator
                 else
                 {
                     //Create move
-                    Move move = new Move(piece.Position, destPosition, _boardManager.GetPiece(piece.Position), _boardManager.GetPiece(destPosition));
-                    var playerKey = GetPieceHashKey(move.SrcPosition);
-                    var destinationKey = GetPieceHashKey(move.DestPosition);
+                    var srcKey = GetPieceHashKey(move.SrcPosition);
+                    var destKey = GetPieceHashKey(move.DestPosition);
 
-                    DropPiece(move, playerKey, destinationKey, selectedPlayer);
+                    DropPiece(move, srcKey, destKey, selectedPlayer);
 
                     capturePieceValue = EvaluateBestMove(depth - 1, CurrentPlayer, !isMax) + capturePieceValue;
 
@@ -125,7 +127,7 @@ public class GameEvaluator : IGameEvaluator
                         }
                     }
 
-                    RestorePiece(move, playerKey, destinationKey, selectedPlayer);
+                    RestorePiece(move, srcKey, destKey, selectedPlayer);
                 }
             }
 
@@ -165,7 +167,6 @@ public class GameEvaluator : IGameEvaluator
         var currentPieces = color == PieceColor.White ? WhitePieces : BlackPieces;
         var oponmentPieces = color == PieceColor.White ? BlackPieces : WhitePieces;
 
-
         // Moving piece to its new position
         if (move.CapturedPiece != null)
             oponmentPieces.Remove(destinationKey);
@@ -173,15 +174,15 @@ public class GameEvaluator : IGameEvaluator
         currentPieces.Remove(playerKey);
         currentPieces.Add(destinationKey, move.Piece);
 
-        //Update board
-        _boardManager.DropPiece(move);
-
         if (move.Castle != null)
         {
             var theRock = currentPieces[move.Castle.SrcRockKey];
             currentPieces.Remove(move.Castle.SrcRockKey);
             currentPieces.Add(move.Castle.DestRockKey, theRock);
         }
+
+        //Update board
+        _boardManager.DropPiece(move);
 
         //Changing turn
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
@@ -195,7 +196,7 @@ public class GameEvaluator : IGameEvaluator
 
     private int EvaluatePiece(Piece piece, Position position, bool isMax)
     {
-        int tempValue = EvaluatePiece(_boardManager.Board!.Pieces[position.Y, position.X]!);
+        int tempValue = EvaluatePiece(_boardManager.GetPiece(position));
         if (piece.Type == PieceType.Pawn && (position.Y == 0 || position.Y == 7))
             tempValue += 9;
         return isMax ? tempValue : tempValue * -1;

@@ -54,8 +54,6 @@ public class PositionEvaluator : IPositionEvaluator
     private List<Position> GetLegalPawnPositions(Position position, Piece piece)
     {
         short direction = (short)(piece.Color == PieceColor.White ? 1 : -1);
-
-
         List<Position> legalMoves = new();
 
         //Move up
@@ -74,7 +72,7 @@ public class PositionEvaluator : IPositionEvaluator
 
         if (newPosition.HasValue)
         {
-            var destPiece = board[newPosition];
+            var destPiece = _boardManager.GetPiece(newPosition);
 
             if (destPiece == null)
             {
@@ -89,7 +87,6 @@ public class PositionEvaluator : IPositionEvaluator
 
     private void AddEatPawnPosition(Piece piece, int x, int y, ref List<Position> legalMoves)
     {
-        int legalMovesCount = legalMoves.Count;
         var newPosition = new Position(y, x);
         if (newPosition.HasValue)
         {
@@ -102,7 +99,7 @@ public class PositionEvaluator : IPositionEvaluator
 
     private List<Position> GetLegalKingPositions(Piece piece, PieceColor pieceColor, Board board)
     {
-        List<Position> legalMoves = new();
+        List<Position> legalMoves = [];
 
         (bool leftCastlingEnabled,bool rightCastlingEnabled) = CommonUtils.GetCastleState(piece.Color, board);
 
@@ -124,38 +121,37 @@ public class PositionEvaluator : IPositionEvaluator
         if (leftCastlingEnabled)
             TryAppendLargeCastlePosition(piece.Position, ref legalMoves);
 
-
         return legalMoves;
     }
 
     private List<Position> GetLegalRockPositions(Piece piece, PieceColor pieceColor)
     {
-        List<Position> legalMoves = new();
+        List<Position> legalMoves = [];
         var position = piece.Position;
 
         //right
-        for (short x = 1; x < 8; x++)
+        for (short x = 1; x < CommonUtils.MAX_ROWS; x++)
         {
             if (!TryAddPosition(pieceColor, position.X + x, position.Y, ref legalMoves))
                 break;
         }
 
         //left
-        for (short x = -1; x > -8; x--)
+        for (short x = -1; x > -CommonUtils.MAX_ROWS; x--)
         {
             if (!TryAddPosition(pieceColor, position.X + x, position.Y, ref legalMoves))
                 break;
         }
 
         //up
-        for (short y = 1; y < 8; y++)
+        for (short y = 1; y < CommonUtils.MAX_ROWS; y++)
         {
             if (!TryAddPosition(pieceColor, position.X, position.Y + y, ref legalMoves))
                 break;
         }
 
         //down
-        for (short y = -1; y > -8; y--)
+        for (short y = -1; y > -CommonUtils.MAX_ROWS; y--)
         {
             if (!TryAddPosition(pieceColor, position.X, position.Y + y, ref legalMoves))
                 break;
@@ -213,11 +209,11 @@ public class PositionEvaluator : IPositionEvaluator
 
     private List<Position> GetLegalQueenPositions(Piece piece, PieceColor pieceColor)
     {
-        var legalRockMoves = GetLegalRockPositions(piece, pieceColor);
+        var legalMoves = GetLegalRockPositions(piece, pieceColor);
         var legalBishopMoves = GetLegalBishopPositions(piece, pieceColor);
 
-        legalRockMoves.AddRange(legalBishopMoves);
-        return legalRockMoves;
+        legalMoves.AddRange(legalBishopMoves);
+        return legalMoves;
     }
 
     private bool TryAddPosition(PieceColor pieceColor, int x, int y, ref List<Position> legalMoves)
@@ -231,7 +227,7 @@ public class PositionEvaluator : IPositionEvaluator
         if (!newPosition.HasValue)
             return false;
 
-        var destPiece = board[newPosition]!;
+        var destPiece = _boardManager.GetPiece(newPosition);
 
         if (destPiece == null || destPiece.Color != pieceColor)
         {
@@ -245,7 +241,7 @@ public class PositionEvaluator : IPositionEvaluator
         for (int i = 1; i <= 2; i++)
         {
             var kingPosition = new Position(position.Y, position.X + i);
-            if (board[kingPosition] != null)
+            if (_boardManager.GetPiece(kingPosition) != null)
                 return false;
 
             if (i == 2)
@@ -259,7 +255,7 @@ public class PositionEvaluator : IPositionEvaluator
         for (int i = 1; i <= 3; i++)
         {
             var kingPosition = new Position(position.Y, position.X - i);
-            if (board[kingPosition] != null)
+            if (_boardManager.GetPiece(kingPosition) != null)
                 return false;
 
             if (i == 3)
@@ -267,6 +263,4 @@ public class PositionEvaluator : IPositionEvaluator
         }
         return true;
     }
-
-
 }

@@ -56,8 +56,6 @@ public class ChessEngine
 
     internal void DropPiece(Move move)
     {
-
-
         //Update the board.
         _boardManager.DropPiece(move);
 
@@ -70,6 +68,7 @@ public class ChessEngine
         //Reset the game evaluator.
         gameEvaluator.InitPlayersPieces(_boardManager.Board);
 
+        //Pgnig.Api.Client.Models.
         //Changing turn
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
     }
@@ -99,6 +98,11 @@ public class ChessEngine
         return isLegalMove;
     }
 
+    public async Task<bool> IsLegalMoveAsync(Position position, Position destPosition)
+    {
+        var a1  = await Task.Run(() => IsLegalMove(position, destPosition));
+        return a1;
+    }
 
     public void PlayBestMove(int depth)
     {
