@@ -1,15 +1,28 @@
-# Chess engine desgined by SOLID (Starting draft)
+# Chess engine designed with SOLID (Starting draft)
 
 This is a new project created in c#, 
 
-We will use the MinMax algoritem for finding best move
+I'll implement the Minimax algorithm to determine the best moves. 
 
 I will not use existing code - for learning purpose
 
-## Model Desgin
+## Model design 
+- **Position**: The location on the board.
+- **Move**: The action a player (or the engine) is considering
+- **Board**: An 8x8 data structure that represents the chessboard.
+- **Piece**: The player possition & piece & type
+- **Castle**: A special move that add some more complexability (2 moves in one move)
+
+<img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/8a469c1d-837c-4deb-b516-23ffdf1d7871">
 
 
-![Chess drawio](https://github.com/user-attachments/assets/f5ee26c7-3cf0-4221-961c-10db6b36248d)
+
+## Appication design 
+- **ChessEngine**: the entry point (Facade Pattern)
+- **PositionEvaluator**: Responsible of returning all possible move by piece
+- **BoardManager**: Responsible of getting & setting data on the board
+- **GameEvaluator**: highly efficient component that return the best move based on the depth search
+  
+<img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/571ae7bd-f20b-4174-8341-4b0993db5d57">
 
 
-## Engine Desgin
