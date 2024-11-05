@@ -177,6 +177,7 @@ public class ChessEngine
         }
 
     }
+
     public void Prev()
     {
         if (historyIndex > 0)

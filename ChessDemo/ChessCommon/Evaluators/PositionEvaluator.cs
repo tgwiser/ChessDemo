@@ -244,10 +244,10 @@ internal class PositionEvaluator : IPositionEvaluator
 
     private bool TryAppendLargeCastlePosition(Position position, ref List<Position> legalMoves)
     {
+        var kingPosition = new Position(position.Y, position.X - 2);
         for (int i = 1; i <= 3; i++)
         {
-            var kingPosition = new Position(position.Y, position.X - i);
-            if (_boardManager.GetPiece(kingPosition) != null)
+            if (_boardManager.GetPiece(new Position(position.Y, position.X - i)) != null)
                 return false;
 
             if (i == 3)

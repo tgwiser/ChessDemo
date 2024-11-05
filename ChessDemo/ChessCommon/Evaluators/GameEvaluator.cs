@@ -115,7 +115,12 @@ internal class GameEvaluator : IGameEvaluator
 
                     DropPiece(move, srcKey, destKey, selectedPlayer);
 
-                    capturePieceValue = EvaluateBestMove(depth - 1, CurrentPlayer, !isMax) + capturePieceValue;
+                    bool isSkipprd = false;
+t
+                    if (isSkipprd)
+                        capturePieceValue = isMax ? 10 : -10;
+                    else
+                        capturePieceValue = EvaluateBestMove(depth - 1, CurrentPlayer, !isMax) + capturePieceValue;
 
                     if (IsBestValue(currentLevelBestValue, capturePieceValue, isMax))
                     {
@@ -151,9 +156,18 @@ internal class GameEvaluator : IGameEvaluator
 
         if (move.Castle != null)
         {
-            var theRock = currentPieces[move.Castle.DestRockKey];
-            currentPieces.Remove(move.Castle.DestRockKey);
-            currentPieces.Add(move.Castle.SrcRockKey, theRock);
+            Piece theRock = null;
+            try
+            {
+                 theRock = currentPieces[move.Castle.DestRockKey];
+                currentPieces.Remove(move.Castle.DestRockKey);
+                currentPieces.Add(move.Castle.SrcRockKey, theRock);
+            }
+            catch (Exception)
+            {
+          
+            }
+         
         }
 
         //Update board
@@ -165,6 +179,9 @@ internal class GameEvaluator : IGameEvaluator
 
     public void DropPiece(Move move, int playerKey, int destinationKey, PieceColor color)
     {
+        //Update board
+        _boardManager.DropPiece(move);
+
         var currentPieces = color == PieceColor.White ? WhitePieces : BlackPieces;
         var oponmentPieces = color == PieceColor.White ? BlackPieces : WhitePieces;
 
@@ -181,9 +198,6 @@ internal class GameEvaluator : IGameEvaluator
             currentPieces.Remove(move.Castle.SrcRockKey);
             currentPieces.Add(move.Castle.DestRockKey, theRock);
         }
-
-        //Update board
-        _boardManager.DropPiece(move);
 
         //Changing turn
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;

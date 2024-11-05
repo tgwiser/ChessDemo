@@ -21,9 +21,9 @@ public class Castle
     public Castle(Position originalPosition)
     {
         IsRightCastle = originalPosition.X == 6;
-        IsLeftCastle = originalPosition.X == 1;
+        IsLeftCastle = originalPosition.X == 2;
         SrcRock = new Position(originalPosition.Y, IsRightCastle ? 7 : 0);
-        DestRock = new Position(originalPosition.Y, IsRightCastle ? 5 : 2);
+        DestRock = new Position(originalPosition.Y, IsRightCastle ? 5: 3);
     }
 
 }
