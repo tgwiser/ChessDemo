@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <style>
         .chess-info {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             padding: 5px
         }
         .chess-board { border-spacing: 0; border-collapse: collapse; }
@@ -43,11 +43,9 @@
 </head>
 <body>
 
-  
-
     <div>
-        <div style="margin-bottom: 46px; padding: 5px; float:left">
-
+        <div style="padding: 5px; float:left">
+            <h2>Play</h2>
             <div class="chess-info">
                 <div>
                     <input type="radio" id="autoPlay" name="drone" @onclick="EnableAutoPlay" value="huey" checked />
@@ -58,29 +56,28 @@
                     <input type="radio" id="disableAutoPlay" name="drone" value="dewey" @onclick="DisableAutoPlay" />
                     <label for="disableAutoPlay">Disable AutoPlay</label>
                 </div>
-                <button class="btn btn-primary" @onclick="Play">
-                    Play
-                </button>
+                <div style="margin-bottom: 10px; clear:both">
+                    <button class="btn btn-primary" @onclick="Play">  Play </button>
+                    <button @onclick="NextMove" class="btn btn-info">Next Move</button>
+                    <button @onclick="PrevMove" class="btn btn-info">Prev Move</button>
+                </div>
             </div>
 
-            <h2>Evaluate</h2> 
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
-                <button class="btn btn-primary" @onclick="EvaluateMove"> Evaluate (@depth)  </button>
-                <button @onclick="IncCount" class="btn btn-info">Up</button>
-                @depth
-                <button @onclick="DecCount" class="btn btn-info">Down</button>
+            <h2>Evaluate</h2>
+            <div class="chess-info" style="clear:both">
+                <div style="margin-bottom: 10px; clear:both">
+                    <button class="btn btn-primary" @onclick="EvaluateMove"> Evaluate (@depth)  </button>
+                    <button @onclick="IncCount" class="btn btn-info">Up</button>
+                    @depth
+                    <button @onclick="DecCount" class="btn btn-info">Down</button>
+                </div>
+                <div style="margin-bottom: 5px; clear:both">  Move Position:  @movePosition    </div>
+                <div style="margin-bottom: 5px; clear:both">  Move Value:  @moveValue  (@moveCounter)  </div>
+                <div style="margin-bottom: 5px; clear:both">  Move Time:  @moveTime </div>
             </div>
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">  Move Position:  @movePosition    </div>
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">  Move Value:  @moveValue  (@moveCounter)  </div>
-
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">  Move Time:  @evaluateMoveTime </div>
-
-
-        
 
             <h2>Save\Load Game</h2>
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
-
+            <div class="chess-info" style="clear:both">
                 <input type="text" @bind="csvFile" placeholder="" />
                 <button class="btn btn-primary" @onclick="SaveBoard">
                     Save Board
@@ -89,46 +86,37 @@
                     Load Board
                 </button>
             </div>
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
-                <button @onclick="NextMove" class="btn btn-info">Next Move</button>
-              
-                <button @onclick="PrevMove" class="btn btn-info">Prev Move</button>
-            </div>
 
-
-
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
-                <h1>Info</h1> 
-                <button @onclick="GetInfo" class="btn btn-primary">GetInfo</button>
-                <button @onclick="CleanInfo" class="btn btn-primary">CleanInfo</button>
-            </div>
-
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
-                <b>Current Player: </b> @currentPlayer
-            </div>
+            <h2>Info</h2>
+                <div class="chess-info" style="clear:both">
+                <div style="margin-bottom: 10px;clear:both">
+                    <button @onclick="GetInfo" class="btn btn-primary">GetInfo</button>
+                    <button @onclick="CleanInfo" class="btn btn-primary">CleanInfo</button>
+                </div>
+                <div style="margin-bottom: 10px;clear:both">
+                    <b>Current Player: </b> @currentPlayer
+                </div>
       
 
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
                 <div style="margin-bottom: 10px;clear:both">
-                    <b>White</b> Check:  @isBlackCheck,  <b>isMate: </b> @isBlackMate
+                    <div style="margin-bottom: 10px;clear:both">
+                        <b>White</b> Check:  @isBlackCheck,  <b>isMate: </b> @isBlackMate
+                    </div>
+                    <div style="margin-bottom: 10px;clear:both">
+                        <b>Black</b> Check:  @isWhiteCheck,  <b>isMate: </b> @isWhiteMate
+                    </div>
                 </div>
                 <div style="margin-bottom: 10px;clear:both">
-                    <b>Black</b> Check:  @isWhiteCheck,  <b>isMate: </b> @isWhiteMate
+                    <div style="margin-bottom: 10px;clear:both">
+                        white:  <b>@castleWhiteState</b>
+                    </div>
+                    <div style="margin-bottom: 10px;clear:both">
+                        black: <b> @castleBlackState </b>
+                    </div>
                 </div>
-            </div>
-
-
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
-                <div style="margin-bottom: 10px;clear:both">
-                     white:  <b>@castleWhiteState</b>
+                <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                    @Info
                 </div>
-                <div style="margin-bottom: 10px;clear:both">
-                     black: <b> @castleBlackState </b>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 10px; padding: 5px;clear:both">
-                @Info
             </div>
 
         </div>
@@ -186,11 +174,14 @@
     private int depth = 1;
     private ChessEngine chessEngine;
     private Position originalPosition;
+
+    //Evaluate move.
     private string movePosition=  string.Empty;
     private int? moveCounter = null;
     private int? moveValue = null;
     private string moveTime= string.Empty;
-    private string evaluateMoveTime = string.Empty;
+
+
     private string currentPlayer = "";
     private string csvFile = "";
     private string Info = "";
@@ -209,72 +200,47 @@
 
     private void GetInfo()
     {
-        //Check/Mate
-        isWhiteCheck = chessEngine.IsCheck(PieceColor.White);
-        isWhiteMate = chessEngine.IsMate(PieceColor.White);
-
-        isBlackCheck = chessEngine.IsCheck(PieceColor.Black);
-        isBlackMate = chessEngine.IsMate(PieceColor.Black);
+        //Check or Mate
+        (isWhiteCheck, isWhiteMate) = ChessService.GetCheckStatus(chessEngine,PieceColor.White);
+        (isBlackCheck, isBlackMate) = ChessService.GetCheckStatus(chessEngine, PieceColor.Black);
 
         //Castle
-
         castleBlackState = $"Left : {chessEngine.BlackCastlingState.Left}, Right : {chessEngine.BlackCastlingState.Right}";
         castleWhiteState = $"Left : {chessEngine.WhiteCastlingState.Left}, Right : {chessEngine.WhiteCastlingState.Right}";
     }
 
     private void CleanInfo()
     {
-        //Check/Mate
-
-        isWhiteCheck = false;
-        isWhiteMate = false;
-        isBlackMate = false;
-        isBlackMate = false;
+        //Check or Mate
+        isWhiteCheck = isWhiteMate = isBlackMate = isBlackMate = false;
 
         //Castle
-        castleBlackState = string.Empty;
-        castleWhiteState = string.Empty;
+        castleBlackState = castleWhiteState = string.Empty;
 
         //Eval
         movePosition = string.Empty;
         moveCounter = null;
         moveValue = null;
-        evaluateMoveTime = string.Empty;
+        moveTime = string.Empty;
 
     }
-    private void NextMove()
-    {
-        chessEngine.Next();
-    }
 
-    private void PrevMove()
-    {
-        chessEngine.Prev();
-    }
+    //Next & Prev
+    private void NextMove() =>  chessEngine.Next();
+    private void PrevMove()=> chessEngine.Prev();
 
+    //Counter
     private void IncCount() =>    depth++;
     private void DecCount() =>   depth--;
 
     private void DisableAutoPlay() => isAutoPay = false;
     private void EnableAutoPlay() => isAutoPay = true;
 
+    private void Play()=>  chessEngine.PlayBestMove(depth);
 
-    private void Play()
-    {
-        chessEngine.PlayBestMove(depth);
-    }
+    private void SaveBoard() => chessEngine.SaveBoard(csvFile);
 
-    private void SaveBoard()
-    {
-        string fileName = "Data/" + csvFile + ".csv";
-        if (!string.IsNullOrWhiteSpace(csvFile))
-            chessEngine.SaveBoard(fileName);
-    }
-
-    private void LoadBoard()
-    {
-        Info = ChessService.LoadBoard(chessEngine, csvFile);
-    }
+    private void LoadBoard()=>  Info = ChessService.LoadBoard(chessEngine, csvFile);
 
     private void EvaluateMove()
     {
@@ -284,10 +250,9 @@
         (movePosition, moveCounter, moveValue) = chessEngine.EvaluateBestMove(depth, chessEngine.CurrentPlayer);
 
       
-        evaluateMoveTime = $"{stopwatch.Elapsed.Minutes}:{stopwatch.Elapsed.Seconds}:{stopwatch.Elapsed.Milliseconds}";
+        moveTime = $"{stopwatch.Elapsed.Minutes}:{stopwatch.Elapsed.Seconds}:{stopwatch.Elapsed.Milliseconds}";
 
         stopwatch.Stop();
-        currentPlayer = chessEngine.CurrentPlayer.ToString();
     }
 
     protected override async Task OnInitializedAsync()
@@ -295,9 +260,8 @@
         chessEngine = chessService.GetChessEngine();
     }
 
-    private async Task HandleDragDroped(DragEventArgs e, Position destPosition)
+    private async Task HandleDragDroped(DragEventArgs e, Position destination)
     {
-        Position destination = new Position(destPosition.Y, destPosition.X);
         var isLegalMove = chessEngine.IsLegalMove(originalPosition, destination);
 
         if (isLegalMove)

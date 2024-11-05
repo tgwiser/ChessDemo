@@ -1,6 +1,6 @@
 ﻿using ChessCommon.Models;
 
-namespace ChessCommon.Evaluators;
+namespace ChessCommon.Evaluators.Contracts;
 
 public interface IGameEvaluator
 {

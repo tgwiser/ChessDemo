@@ -10,4 +10,8 @@
     <ProjectReference Include="..\ChessCommon\ChessCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>

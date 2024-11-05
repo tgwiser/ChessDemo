@@ -14,6 +14,10 @@ public class Castle
     public bool IsRightCastle;
     public bool IsLeftCastle;
 
+    public Castle()
+    {
+    }
+
     public Castle(Position originalPosition)
     {
         IsRightCastle = originalPosition.X == 6;

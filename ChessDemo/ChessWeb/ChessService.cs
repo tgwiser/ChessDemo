@@ -1,5 +1,6 @@
 ﻿using ChessCommon;
 using ChessCommon.Evaluators;
+using ChessCommon.Evaluators.Contracts;
 using ChessCommon.Models;
 using System.Text;
 
@@ -52,19 +53,32 @@ namespace ChessWeb
             };
         }
 
-        public static string LoadBoard(ChessEngine chessEngine, string csvFile)
+        public static string LoadBoard(ChessEngine chessEngine, string fileName)
         {
 
-            if (string.IsNullOrWhiteSpace(csvFile))
-                return "Select file location";
+            //if (string.IsNullOrWhiteSpace(csvFile))
+            //    return "Select file location";
 
-            string fileName = "Data/" + csvFile + ".csv";
-            if (!File.Exists(fileName))
-                return "file not found";
+            //string fileName = "Data/" + csvFile + ".csv";
+            //if (!File.Exists(fileName))
+            //    return "file not found";
 
             chessEngine.LoadBoard(fileName);
             return "file loaded";
         }
 
+
+        public static (bool IsCheck, bool IsMate) GetCheckStatus(ChessEngine chessEngine, PieceColor color)
+        {
+            var isCheck = chessEngine.IsCheck(color);
+            var isMate = chessEngine.IsMate(color);
+            return (isCheck, isMate);
+        }
     }
+
+
+
+
+
+
 }

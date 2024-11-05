@@ -1,8 +1,9 @@
-﻿using ChessCommon.Models;
+﻿using ChessCommon.Evaluators.Contracts;
+using ChessCommon.Models;
 
 namespace ChessCommon.Evaluators;
 
-public class BoardManager: IBoardManager
+internal class BoardManager: IBoardManager
 {
     public Board? Board { get; set; }
 
@@ -106,5 +107,10 @@ public class BoardManager: IBoardManager
     public Piece? GetPiece(int y, int x)
     {
         return Board![y,x];
+    }
+
+    public Piece?[,] GetPieces()
+    {
+        return Board!.Pieces;
     }
 }

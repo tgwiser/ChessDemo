@@ -1,8 +1,9 @@
-﻿using ChessCommon.Models;
+﻿using ChessCommon.Evaluators.Contracts;
+using ChessCommon.Models;
 
 namespace ChessCommon.Evaluators;
 
-public class GameEvaluator : IGameEvaluator
+internal class GameEvaluator : IGameEvaluator
 {
     public int maxDepth = 3;
 
@@ -21,10 +22,10 @@ public class GameEvaluator : IGameEvaluator
     {
         _positionEvaluator = positionEvaluator;
         _boardManager = boardManager;
-        InitPlayersPieces(boardManager.Board!);
+        InitPlayersPieces();
     }
 
-    public void InitPlayersPieces(Board board)
+    public void InitPlayersPieces()
     { 
         BlackPieces = new Dictionary<int, Piece>();
         WhitePieces = new Dictionary<int, Piece>();

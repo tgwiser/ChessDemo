@@ -1,11 +1,10 @@
-﻿using ChessCommon.Models;
+﻿using ChessCommon.Evaluators.Contracts;
+using ChessCommon.Models;
 
 namespace ChessCommon.Evaluators;
 
-public class PositionEvaluator : IPositionEvaluator
+internal class PositionEvaluator : IPositionEvaluator
 {
-    Board board;
-
     public IServiceProvider ServiceProvider { get; }
 
     private IBoardManager _boardManager;
@@ -14,12 +13,6 @@ public class PositionEvaluator : IPositionEvaluator
     {
         ServiceProvider = serviceProvider;
         _boardManager = boardManager;
-        board = _boardManager.Board!;
-    }
-
-    public void InitPieces()
-    {
-        board = _boardManager.Board!;
     }
 
     public List<Position> GetLegalPositions(Piece piece)
@@ -32,7 +25,7 @@ public class PositionEvaluator : IPositionEvaluator
                 legalPositions = GetLegalPawnPositions(position, piece);
                 break;
             case PieceType.King:
-                legalPositions = GetLegalKingPositions(piece, piece.Color, board);
+                legalPositions = GetLegalKingPositions(piece, piece.Color);
                 break;
             case PieceType.Rook:
                 legalPositions = GetLegalRockPositions(piece, piece.Color);
@@ -90,18 +83,17 @@ public class PositionEvaluator : IPositionEvaluator
         var newPosition = new Position(y, x);
         if (newPosition.HasValue)
         {
-            var destPiece = board[newPosition]!;
-
+            var destPiece = _boardManager.GetPiece(newPosition);
             if (destPiece != null && piece.Color != destPiece.Color)
                 legalMoves.Add(newPosition);
         }
     }
 
-    private List<Position> GetLegalKingPositions(Piece piece, PieceColor pieceColor, Board board)
+    private List<Position> GetLegalKingPositions(Piece piece, PieceColor pieceColor)
     {
         List<Position> legalMoves = [];
 
-        (bool leftCastlingEnabled,bool rightCastlingEnabled) = CommonUtils.GetCastleState(piece.Color, board);
+        (bool leftCastlingEnabled,bool rightCastlingEnabled) = CommonUtils.GetCastleState(piece.Color, _boardManager.Board!);
 
         for (short x = -1; x <= 1; x++)
         {

@@ -1,4 +1,5 @@
 ﻿using ChessCommon.Evaluators;
+using ChessCommon.Evaluators.Contracts;
 using ChessCommon.Models;
 
 namespace ChessCommon;
@@ -27,11 +28,9 @@ public class ChessEngine
     public ChessEngine(IPositionEvaluator positionEvaluator, IBoardManager boardManager)
     {
         PositionEvaluatorEngine = positionEvaluator;
-        var board  = new Board(CommonUtils.GetInitChessPices());
-        _boardManager = boardManager;
-        _boardManager.Board = board;
 
-        PositionEvaluatorEngine.InitPieces();
+        _boardManager = boardManager;
+        _boardManager.Board = CommonUtils.GetIDefaultBoard();
         gameEvaluator = new GameEvaluator(PositionEvaluatorEngine, boardManager);
      
     }
@@ -66,7 +65,7 @@ public class ChessEngine
         }
 
         //Reset the game evaluator.
-        gameEvaluator.InitPlayersPieces(_boardManager.Board);
+        gameEvaluator.InitPlayersPieces();
 
         //Pgnig.Api.Client.Models.
         //Changing turn
@@ -79,7 +78,7 @@ public class ChessEngine
         _boardManager.RestorePiece(move);
 
         //Reset the game evaluator.
-        gameEvaluator.InitPlayersPieces(_boardManager.Board);
+        gameEvaluator.InitPlayersPieces();
 
         //Changing turn
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
@@ -139,7 +138,33 @@ public class ChessEngine
 
     public void SaveBoard(string fileName)
     {
-        CommonUtils.SaveBoard(fileName, _boardManager.Board.Pieces);
+        if (!string.IsNullOrWhiteSpace(fileName))
+        {
+
+            string folderName = $"Data/{fileName}/";
+            Directory.CreateDirectory(folderName);
+            CommonUtils.SaveBoard(folderName + "pieces.csv", _boardManager.GetPieces());
+
+            var bord = _boardManager!.Board!;
+
+            CommonUtils.SaveInfo(folderName + "info.csv",
+               bord.whiteLeftCastlingEnabled,
+               bord.whiteRightCastlingEnabled,
+               bord.blackLeftCastlingEnabled,
+               bord.blackRightCastlingEnabled);
+        }
+    }
+
+    public void LoadBoard(string fileName)
+    {
+        string folderName = $"Data/{fileName}/";
+        _boardManager.Board = CommonUtils.GetSavedBoard(folderName + "pieces.csv");
+        gameEvaluator.InitPlayersPieces();
+
+        CommonUtils.SetSavedInfo(folderName + "info.csv", _boardManager.Board);
+      
+
+
     }
 
     public void Next()
@@ -160,13 +185,4 @@ public class ChessEngine
             RestorePiece(gameHistory[historyIndex]);
         }
     }
-
-    public void LoadBoard(string fileName)
-    {
-        var pieces = CommonUtils.GetSavedPieces(fileName);
-        _boardManager.Board = new Board(pieces);
-        PositionEvaluatorEngine.InitPieces();
-    }
-
-
 }

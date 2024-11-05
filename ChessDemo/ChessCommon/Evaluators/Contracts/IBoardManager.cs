@@ -1,16 +1,11 @@
 ﻿using ChessCommon.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ChessCommon.Evaluators
+namespace ChessCommon.Evaluators.Contracts
 {
 
     public interface IBoardManager
     {
-        Board? Board { get;  set; }
+        Board? Board { get; set; }
 
         void DropPiece(Move move);
 
@@ -21,5 +16,7 @@ namespace ChessCommon.Evaluators
         Piece GetPiece(Position position);
 
         Piece? GetPiece(int y, int x);
+
+        Piece?[,] GetPieces();
     }
 }

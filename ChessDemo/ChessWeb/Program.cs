@@ -1,7 +1,5 @@
-using ChessCommon.Evaluators;
+using ChessCommon;
 using ChessWeb;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddSingleton<IBoardManager, BoardManager>();
-builder.Services.AddSingleton<IPositionEvaluator, PositionEvaluator>();
+builder.Services.AddChessServices();
 builder.Services.AddSingleton<ChessService>();
 
 var app = builder.Build();
