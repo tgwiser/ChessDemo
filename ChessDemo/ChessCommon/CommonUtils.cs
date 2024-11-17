@@ -1,4 +1,5 @@
-﻿using ChessCommon.Models;
+﻿using ChessCommon.Evaluators.Contracts;
+using ChessCommon.Models;
 
 namespace ChessCommon;
 
@@ -48,22 +49,6 @@ public class CommonUtils
         return board;
     }
 
-    public static void SaveBoard(string fileName, Piece?[,] pieces)
-    {
-        List<string> csvData = new List<string>();
-        for (int x = 0; x < MAX_ROWS; x++)
-        {
-            for (int y = 0; y < MAX_COLS; y++)
-            {
-                Piece? piece = pieces[x, y];
-                if (piece != null)
-                    csvData.Add(piece.ToString());
-            }
-        }
-
-        File.WriteAllLines(fileName, csvData);
-    }
-
     public static void SaveInfo(string fileName,bool whiteCasteleLeft, bool whiteCasteleRight, bool blackCasteleLeft, bool blackCasteleRight)
     {
         List<string> csvData =
@@ -73,64 +58,6 @@ public class CommonUtils
         ];
         File.WriteAllLines(fileName, csvData);
     }
-
-    public static Piece?[,] GetSavedPieces(string fileName)
-    {
-        var csvData = File.ReadAllLines(fileName);
-        var pieces = new Piece[MAX_ROWS, MAX_COLS];
-        foreach (var data in csvData)
-        {
-            var rawData = data.Split(',');
-
-
-            Position position = new Position(rawData[2]);
-
-            if (Enum.TryParse(rawData[0], out PieceColor color) &&
-                Enum.TryParse(rawData[1], out PieceType pieceType))
-            {
-                pieces[position.Y, position.X] = new Piece(color, pieceType, position);
-            }
-          
-        }
-        return pieces;
-
-    }
-
-    public static Board GetSavedBoard(string fileName)
-    {
-        var pieces = GetSavedPieces(fileName);
-        var board = new Board(pieces);
-        return board;
-    }
-
-    public static void SetSavedInfo(string fileName, Board board)
-    {
-        Castle whiteCastele = new Castle();
-        Castle blackCastele = new Castle();
-
-        var csvData = File.ReadAllLines(fileName);
-  
-        foreach (var data in csvData)
-        {
-            var rawData = data.Split(',');
-
-            bool isLeftEnabled = rawData[1] == "true";
-            bool isRightEnabled = rawData[2] == "true";
-
-            if (rawData[0] == "WhiteCastle")
-            {
-                board.whiteLeftCastlingEnabled = isLeftEnabled;
-                board.whiteRightCastlingEnabled = isRightEnabled;
-            }
-
-            if (rawData[0] == "blackCastle")
-            {
-                board.blackLeftCastlingEnabled = isLeftEnabled;
-                board.blackRightCastlingEnabled = isRightEnabled;
-            }
-        }
-    }
-
 
     /// <summary>
     /// Short horizontal position from file char<br/>
@@ -165,22 +92,13 @@ public class CommonUtils
     }
 
 
-    public static (bool Left , bool Right) GetCastleState(PieceColor pieceColor, Board board)
-    {
-        if (pieceColor == PieceColor.White)
-            return (board.whiteLeftCastlingEnabled,board.whiteRightCastlingEnabled);
-        else
-            return (board.blackLeftCastlingEnabled,board.blackRightCastlingEnabled);
-    }
-
-
-    public static (bool, bool) IsDestinationStateChanged(Piece piece, Board board)
+    public static (bool, bool) IsDestinationStateChanged(Piece piece, IBoardManager boardManager)
     {
         if (piece.Type != PieceType.King && piece.Type != PieceType.Rook)
             return (false, false);
 
 
-        (bool leftCastlingEnabled, bool rightCastlingEnabled) = GetCastleState(piece.Color, board);
+        (bool leftCastlingEnabled, bool rightCastlingEnabled) = boardManager.GetCastleState(piece.Color);
 
         if (piece.Type == PieceType.King)
             return (leftCastlingEnabled, rightCastlingEnabled);
@@ -191,6 +109,4 @@ public class CommonUtils
 
         return (leftCastlingEnabled, rightCastlingEnabled);
     }
-
-
 }

@@ -8,12 +8,12 @@ public class ChessEngine
 {
     public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
-    public (bool Left, bool Right) BlackCastlingState { get{ return (_boardManager.Board.blackLeftCastlingEnabled, _boardManager.Board.blackRightCastlingEnabled); } }
+    GamePersistenseManager gamePersistenseManager;
 
-    public (bool Left, bool Right) WhiteCastlingState { get { return (_boardManager.Board.whiteLeftCastlingEnabled, _boardManager.Board.whiteRightCastlingEnabled); } }
+    public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get { return _boardManager.GetCastleState(PieceColor.White); } }
+    public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get { return _boardManager.GetCastleState(PieceColor.Black); } }
 
-    List<Move> gameHistory = new List<Move>();
-    int historyIndex = 0;
+    GameHistoryManager gameHistoryManager = new GameHistoryManager();
     GameEvaluator gameEvaluator;
 
     public IPositionEvaluator PositionEvaluatorEngine { get; }
@@ -32,7 +32,7 @@ public class ChessEngine
         _boardManager = boardManager;
         _boardManager.Board = CommonUtils.GetIDefaultBoard();
         gameEvaluator = new GameEvaluator(PositionEvaluatorEngine, boardManager);
-     
+        gamePersistenseManager = new GamePersistenseManager(_boardManager);
     }
 
     public void DropPiece(Position srcPosition, Position destPosition)
@@ -58,12 +58,9 @@ public class ChessEngine
         //Update the board.
         _boardManager.DropPiece(move);
 
-        if (gameHistory.Count == historyIndex)
-        {
-            gameHistory.Add(move);
-            historyIndex = gameHistory.Count;
-        }
-
+        //Update move history.
+        gameHistoryManager.AddMove(move);
+   
         //Reset the game evaluator.
         gameEvaluator.InitPlayersPieces();
 
@@ -136,54 +133,23 @@ public class ChessEngine
         return bestValue < -10;
     }
 
-    public void SaveBoard(string fileName)
-    {
-        if (!string.IsNullOrWhiteSpace(fileName))
-        {
-
-            string folderName = $"Data/{fileName}/";
-            Directory.CreateDirectory(folderName);
-            CommonUtils.SaveBoard(folderName + "pieces.csv", _boardManager.GetPieces());
-
-            var bord = _boardManager!.Board!;
-
-            CommonUtils.SaveInfo(folderName + "info.csv",
-               bord.whiteLeftCastlingEnabled,
-               bord.whiteRightCastlingEnabled,
-               bord.blackLeftCastlingEnabled,
-               bord.blackRightCastlingEnabled);
-        }
-    }
+    public void SaveBoard(string fileName)=>  gamePersistenseManager.SaveBoard(fileName);
 
     public void LoadBoard(string fileName)
     {
-        string folderName = $"Data/{fileName}/";
-        _boardManager.Board = CommonUtils.GetSavedBoard(folderName + "pieces.csv");
+        _boardManager.Board = gamePersistenseManager.GetBoard(fileName);
         gameEvaluator.InitPlayersPieces();
-
-        CommonUtils.SetSavedInfo(folderName + "info.csv", _boardManager.Board);
-      
-
-
     }
 
     public void Next()
     {
-        if (historyIndex < gameHistory.Count)
-        {
-            DropPiece(gameHistory[historyIndex]);
-            historyIndex++;
-         
-        }
-
+        if (gameHistoryManager.TryGetNextMove(out Move? move))
+            DropPiece(move!);
     }
 
     public void Prev()
     {
-        if (historyIndex > 0)
-        {
-            historyIndex--;
-            RestorePiece(gameHistory[historyIndex]);
-        }
+        if (gameHistoryManager.TryGetPrevMove(out Move? move))
+            RestorePiece(move!);
     }
 }

@@ -93,7 +93,7 @@ internal class PositionEvaluator : IPositionEvaluator
     {
         List<Position> legalMoves = [];
 
-        (bool leftCastlingEnabled,bool rightCastlingEnabled) = CommonUtils.GetCastleState(piece.Color, _boardManager.Board!);
+        (bool leftCastlingEnabled,bool rightCastlingEnabled) = _boardManager.GetCastleState(pieceColor);
 
         for (short x = -1; x <= 1; x++)
         {

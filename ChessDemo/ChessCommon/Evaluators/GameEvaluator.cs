@@ -116,7 +116,7 @@ internal class GameEvaluator : IGameEvaluator
                     DropPiece(move, srcKey, destKey, selectedPlayer);
 
                     bool isSkipprd = false;
-t
+
                     if (isSkipprd)
                         capturePieceValue = isMax ? 10 : -10;
                     else

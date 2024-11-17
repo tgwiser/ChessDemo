@@ -44,7 +44,7 @@ internal class BoardManager: IBoardManager
 
     private void UpdateLeftCastleMoveAndBoard(Move move, Board board)
     {
-        if (GetCastleState(move.Piece.Color).LeftCastlingEnabled)
+        if (GetCastleState(move.Piece.Color).IsLeftCastlingEnabled)
         {
             move.LeftCastlingEnabled = false;
             board.UpdateLeftCastleState(move.Piece.Color, false);
@@ -53,7 +53,7 @@ internal class BoardManager: IBoardManager
 
     private void UpdateRightCastleMoveAndBoard(Move move, Board board)
     {
-        if (GetCastleState(move.Piece.Color).RightCastlingEnabled)
+        if (GetCastleState(move.Piece.Color).IsRightCastlingEnabled)
         {
             move.RightCastlingEnabled = false;
             board.UpdateRightCastleState(move.Piece.Color, false);
@@ -92,11 +92,11 @@ internal class BoardManager: IBoardManager
             move.Piece.Type = PieceType.Pawn;
     }
 
-    public (bool LeftCastlingEnabled, bool RightCastlingEnabled) GetCastleState(PieceColor color)
+    public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) GetCastleState(PieceColor color)
     {
         return (color == PieceColor.White) ?
-            (Board!.whiteRightCastlingEnabled, Board!.whiteRightCastlingEnabled) :
-            (Board!.blackLeftCastlingEnabled, Board!.blackRightCastlingEnabled);
+            (Board!.IsWhiteRightCastlingEnabled, Board!.IsWhiteRightCastlingEnabled) :
+            (Board!.IsBlackLeftCastlingEnabled, Board!.IsBlackRightCastlingEnabled);
     }
 
     public Piece GetPiece(Position position)

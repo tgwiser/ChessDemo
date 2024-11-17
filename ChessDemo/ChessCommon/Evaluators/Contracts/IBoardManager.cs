@@ -11,7 +11,8 @@ namespace ChessCommon.Evaluators.Contracts
 
         void RestorePiece(Move move);
 
-        (bool LeftCastlingEnabled, bool RightCastlingEnabled) GetCastleState(PieceColor color);
+        (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) GetCastleState(PieceColor color);
+
 
         Piece GetPiece(Position position);
 
