@@ -1,6 +1,7 @@
 ﻿using ChessCommon.Evaluators;
 using ChessCommon.Evaluators.Contracts;
 using ChessCommon.Models;
+using ChessCommon.Persistense;
 
 namespace ChessCommon;
 
@@ -8,31 +9,31 @@ public class ChessEngine
 {
     public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
-    GamePersistenseManager gamePersistenseManager;
+    IGamePersistenseManager _gamePersistenseManager;
 
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get { return _boardManager.GetCastleState(PieceColor.White); } }
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get { return _boardManager.GetCastleState(PieceColor.Black); } }
 
     GameHistoryManager gameHistoryManager = new GameHistoryManager();
-    GameEvaluator gameEvaluator;
 
     public IPositionEvaluator PositionEvaluatorEngine { get; }
 
     public IBoardManager _boardManager;
+    public IGameEvaluator _gameEvaluator;
 
     private bool standardiseCastlingPositions;
 
     /// <summary>
     /// Creates new chess board with default pieces positions
     /// </summary>
-    public ChessEngine(IPositionEvaluator positionEvaluator, IBoardManager boardManager)
+    public ChessEngine(IPositionEvaluator positionEvaluator, IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseManager gamePersistenseManager)
     {
         PositionEvaluatorEngine = positionEvaluator;
 
         _boardManager = boardManager;
         _boardManager.Board = CommonUtils.GetIDefaultBoard();
-        gameEvaluator = new GameEvaluator(PositionEvaluatorEngine, boardManager);
-        gamePersistenseManager = new GamePersistenseManager(_boardManager);
+        _gameEvaluator = gameEvaluator;
+        _gamePersistenseManager = gamePersistenseManager;
     }
 
     public void DropPiece(Position srcPosition, Position destPosition)
@@ -62,7 +63,7 @@ public class ChessEngine
         gameHistoryManager.AddMove(move);
    
         //Reset the game evaluator.
-        gameEvaluator.InitPlayersPieces();
+        _gameEvaluator.InitPlayersPieces();
 
         //Pgnig.Api.Client.Models.
         //Changing turn
@@ -75,7 +76,7 @@ public class ChessEngine
         _boardManager.RestorePiece(move);
 
         //Reset the game evaluator.
-        gameEvaluator.InitPlayersPieces();
+        _gameEvaluator.InitPlayersPieces();
 
         //Changing turn
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
@@ -104,7 +105,7 @@ public class ChessEngine
     {
         if (IsMate(CurrentPlayer))
             return;
-        var move = gameEvaluator.EvaluateBestMove(depth, CurrentPlayer);
+        var move = _gameEvaluator.EvaluateBestMove(depth, CurrentPlayer);
         if(move!=null)
             DropPiece(move);
     }
@@ -112,11 +113,11 @@ public class ChessEngine
 
     public (string SelectedMove, int Counter , int BestValue) EvaluateBestMove(int depth, PieceColor color)
     {
-        gameEvaluator.EvaluateBestMove(depth, color);
+        _gameEvaluator.EvaluateBestMove(depth, color);
 
-        var selectedMove = gameEvaluator?.SelectedMove?.ToString() ?? string.Empty;
-        var moveCounter = gameEvaluator?.Counter ?? 0;
-        var moveValue = gameEvaluator?.BestValue ?? 0;
+        var selectedMove = _gameEvaluator?.SelectedMove?.ToString() ?? string.Empty;
+        var moveCounter = _gameEvaluator?.Counter ?? 0;
+        var moveValue = _gameEvaluator?.BestValue ?? 0;
         return (selectedMove, moveCounter, moveValue);
     }
 
@@ -133,12 +134,12 @@ public class ChessEngine
         return bestValue < -10;
     }
 
-    public void SaveBoard(string fileName)=>  gamePersistenseManager.SaveBoard(fileName);
+    public void SaveBoard(string fileName)=>  _gamePersistenseManager.SaveBoard(fileName);
 
     public void LoadBoard(string fileName)
     {
-        _boardManager.Board = gamePersistenseManager.GetBoard(fileName);
-        gameEvaluator.InitPlayersPieces();
+        _boardManager.Board = _gamePersistenseManager.GetBoard(fileName);
+        _gameEvaluator.InitPlayersPieces();
     }
 
     public void Next()

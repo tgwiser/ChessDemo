@@ -1,7 +1,7 @@
 ﻿using ChessCommon;
-using ChessCommon.Evaluators;
 using ChessCommon.Evaluators.Contracts;
 using ChessCommon.Models;
+using ChessCommon.Persistense;
 using System.Text;
 
 namespace ChessWeb
@@ -10,15 +10,18 @@ namespace ChessWeb
     {
         IPositionEvaluator PositionEvaluator;
         IBoardManager BoardManager;
+        IGameEvaluator GameEvaluator;
+        IGamePersistenseManager _gamePersistenseManager;
 
-        public ChessService(IPositionEvaluator positionCalculator,IBoardManager boardManager)
+        public ChessService(IPositionEvaluator positionCalculator,IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseManager gamePersistenseManager)
         {
             PositionEvaluator = positionCalculator;
             BoardManager = boardManager;
+            _gamePersistenseManager = gamePersistenseManager;
         }
         public ChessEngine GetChessEngine()
         {
-            ChessEngine ce = new ChessEngine(PositionEvaluator, BoardManager);
+            ChessEngine ce = new ChessEngine(PositionEvaluator, BoardManager, GameEvaluator, _gamePersistenseManager);
             return ce;
         }
 
@@ -55,14 +58,6 @@ namespace ChessWeb
 
         public static string LoadBoard(ChessEngine chessEngine, string fileName)
         {
-
-            //if (string.IsNullOrWhiteSpace(csvFile))
-            //    return "Select file location";
-
-            //string fileName = "Data/" + csvFile + ".csv";
-            //if (!File.Exists(fileName))
-            //    return "file not found";
-
             chessEngine.LoadBoard(fileName);
             return "file loaded";
         }

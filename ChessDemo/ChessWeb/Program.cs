@@ -7,8 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddChessServices();
-builder.Services.AddSingleton<ChessService>();
+builder.Services.AddChessServices(builder.Configuration);
+builder.Services.AddScoped<ChessService>();
+
+
 
 var app = builder.Build();
 

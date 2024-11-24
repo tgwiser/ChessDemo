@@ -22,7 +22,6 @@ internal class GameEvaluator : IGameEvaluator
     {
         _positionEvaluator = positionEvaluator;
         _boardManager = boardManager;
-        InitPlayersPieces();
     }
 
     public void InitPlayersPieces()

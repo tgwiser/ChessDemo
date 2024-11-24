@@ -1,9 +1,9 @@
 ﻿using ChessCommon.Evaluators.Contracts;
 using ChessCommon.Models;
 
-namespace ChessCommon.Evaluators;
+namespace ChessCommon.Persistense;
 
-internal class GamePersistenseManager
+public class GamePersistenseManager: IGamePersistenseManager
 {
     /// <summary>
     /// Board y-dimension
@@ -16,12 +16,31 @@ internal class GamePersistenseManager
     public const int MAX_COLS = 8;
 
     public IBoardManager _boardManager;
-    public GamePersistenseManager(IBoardManager boardManager) {
+    private readonly IChessRepository _chessRepository;
+
+    public GamePersistenseManager(IBoardManager boardManager, IChessRepository chessRepository)
+    {
         _boardManager = boardManager;
+        _chessRepository = chessRepository;
     }
 
-    public void SaveBoard(string fileName)
+    public async Task SaveBoard(string fileName)
     {
+        try
+        {
+            var t1 = await _chessRepository.GetGamesNameAsync();
+        }
+        catch (Exception ex)
+        {
+        }
+        try
+        {
+            await _chessRepository.SaveAsync(new Game() { Id = 1, Moves = "ff", Name = "fg", Level = 3 });
+        }
+        catch (Exception ex)
+        {
+        }
+   
         if (!string.IsNullOrWhiteSpace(fileName))
         {
             string folderName = $"Data/{fileName}/";
@@ -32,7 +51,7 @@ internal class GamePersistenseManager
 
             var whiteCastleState = _boardManager.GetCastleState(PieceColor.White);
             var blackCastleState = _boardManager.GetCastleState(PieceColor.Black);
-          
+
             CommonUtils.SaveInfo(folderName + "info.csv",
                whiteCastleState.IsLeftCastlingEnabled,
                whiteCastleState.IsRightCastlingEnabled,
@@ -64,7 +83,7 @@ internal class GamePersistenseManager
         var pieces = GetBoardPieces(fileName);
 
         string infoFileName = $"Data/{fileName}/info.csv";
-        (bool IsWhiteLeftCastlingEnabled, bool IsWhiteRightCastlingEnabled, bool IsBlackLeftCastlingEnabled, bool IsBlackRightCastlingEnabled)  = GetBoardInfo(infoFileName);
+        (bool IsWhiteLeftCastlingEnabled, bool IsWhiteRightCastlingEnabled, bool IsBlackLeftCastlingEnabled, bool IsBlackRightCastlingEnabled) = GetBoardInfo(infoFileName);
 
         Board board = new Board(pieces);
         board.InitState(IsWhiteLeftCastlingEnabled, IsWhiteRightCastlingEnabled, IsBlackLeftCastlingEnabled, IsBlackRightCastlingEnabled);
@@ -112,4 +131,6 @@ internal class GamePersistenseManager
 
         return (isLeftCastlingEnabled, isRightCastlingEnabled);
     }
+
+  
 }

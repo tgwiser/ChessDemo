@@ -9,4 +9,5 @@ public interface IGameEvaluator
     Move? SelectedMove { get; }
 
     Move? EvaluateBestMove(int depth, PieceColor selectedPlayer);
+    void InitPlayersPieces();
 }
