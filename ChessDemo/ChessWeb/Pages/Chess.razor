@@ -23,6 +23,9 @@
             .chess-board .dark {
                 background: #75abbc;
             }
+
+
+
     </style>
 
     <script>
@@ -44,9 +47,23 @@
 <body>
 
     <div>
-        <div style="padding: 5px; float:left">
-            <h2>Play</h2>
-            <div class="chess-info" style="clear:both">
+
+        <div style="padding: 5px; float:left;width:450px">
+                <div style="margin-bottom: 10px; padding: 5px;clear:both">
+                @Info
+                </div>
+
+
+
+        <div class="accordion" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        Play
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
                 <div style="clear:both">
                     <div style="float:left">
                         <b>AutoPlay   </b>
@@ -64,92 +81,147 @@
                     <button @onclick="NextMove" class="btn btn-outline-info btn-sm">Next Move</button>
                     <button @onclick="PrevMove" class="btn btn-outline-info btn-sm">Prev Move</button>
                 </div>
-            </div>
+      </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingTwo">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+        Evaluate
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+             <div style="margin-bottom: 10px; clear:both">
+                            <button @onclick="EvaluateMove" class="btn btn-primary btn-sm"> Evaluate (@depth)  </button>
+                                        <button @onclick="IncCount" class="btn btn-outline-info btn-sm">Up</button>
+                                @depth
+                            <button @onclick="DecCount" class="btn btn-outline-info btn-sm">Down</button>
+                        </div>
+                        <div style="margin-bottom: 5px; clear:both">  Move Position:  @movePosition    </div>
+                        <div style="margin-bottom: 5px; clear:both">  Move Value:  @moveValue  (@moveCounter)  </div>
+                        <div style="margin-bottom: 5px; clear:both">  Move Time:  @moveTime </div>
+                   </div>
+                   </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingThree">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+        Info
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+             <table class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">White</th>
+                                        <th scope="col">Black</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Current Player</th>
+                                        <td>@isCurrentPlayer(PieceColor.White)</td>
+                                        <td>@isCurrentPlayer(PieceColor.Black)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Check</th>
+                                        <td>@isWhiteCheck</td>
+                                        <td>@isBlackCheck</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Mate</th>
+                                        <td>@isWhiteMate</td>
+                                        <td>@isBlackMate</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Left-Castle</th>
+                                        <td>@chessEngine.WhiteCastlingState.IsLeftCastlingEnabled</td>
+                                        <td>@chessEngine.BlackCastlingState.IsLeftCastlingEnabled</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Right-Castle</th>
+                                        <td>@chessEngine.WhiteCastlingState.IsRightCastlingEnabled</td>
+                                        <td>@chessEngine.BlackCastlingState.IsRightCastlingEnabled</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+      </div>
+    </div>
+  </div>
 
-            <h2>Evaluate</h2>
-            <div class="chess-info" style="clear:both">
-                <div style="margin-bottom: 10px; clear:both">
-                    <button @onclick="EvaluateMove" class="btn btn-primary btn-sm"> Evaluate (@depth)  </button>
-                    <button @onclick="IncCount" class="btn btn-outline-info btn-sm">Up</button>
-                    @depth
-                    <button @onclick="DecCount" class="btn btn-outline-info btn-sm">Down</button>
-                </div>
-                <div style="margin-bottom: 5px; clear:both">  Move Position:  @movePosition    </div>
-                <div style="margin-bottom: 5px; clear:both">  Move Value:  @moveValue  (@moveCounter)  </div>
-                <div style="margin-bottom: 5px; clear:both">  Move Time:  @moveTime </div>
-            </div>
-
-            <h2>Save\Load Game</h2>
-            <div class="chess-info" style="clear:both">
+   <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFour">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+        Save\Load Game
+      </button>
+    </h2>
+    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+            <div id="collapseSaveLoad" class=" chess-info" style="clear:both">
+                Save/Load
+                 <div class=" chess-info" style="clear:both">
                 <input type="text" @bind="csvFile" placeholder="" />
                 <button class="btn btn-primary  btn-sm" @onclick="SaveBoard">
                     Save
                 </button>
-                <button class="btn btn-primary  btn-sm" @onclick="LoadBoard">
-                    Load
+                  </div>
+                  <div class=" chess-info" style="clear:both">
+                <button class="btn btn-primary  btn-sm" @onclick="FindGames">
+                    Find
                 </button>
-            </div>
-
-            <h2>Info</h2> 
-                <div class="chess-info" style="clear:both">
-            
-               <div>
-                    <table class="table">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">White</th>
-                                <th scope="col">Black</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="row">Current Player</th>
-                                <td>@isCurrentPlayer(PieceColor.White)</td>
-                                <td>@isCurrentPlayer(PieceColor.Black)</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Check</th>
-                                <td>@isWhiteCheck</td>
-                                <td>@isBlackCheck</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Mate</th>
-                                <td>@isWhiteMate</td>
-                                <td>@isBlackMate</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Left-Castle</th>
-                                <td>@chessEngine.WhiteCastlingState.IsLeftCastlingEnabled</td>
-                                <td>@chessEngine.BlackCastlingState.IsLeftCastlingEnabled</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Right-Castle</th>
-                                <td>@chessEngine.WhiteCastlingState.IsRightCastlingEnabled</td>
-                                <td>@chessEngine.BlackCastlingState.IsRightCastlingEnabled</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-               </div>
-
-          
-                <div style="margin-bottom: 10px; padding: 5px;clear:both">
-                    @Info
+                  <input type="text" @bind="gameFilter" placeholder="" />
                 </div>
-            </div>
+                  <div style="clear:both">
 
-        </div>
+               
+                                <table class="table">
+
+                                    <tbody>
+                                        @foreach (var game in gameList)
+                                        {
+                                            <tr>
+                                                <td>@game</td>
+                                                <td>
+                                                    <button type="button" @onclick="()=> DeleteGame(game)" class="btn btn-danger">Delete</button>
+                                                    <button type="button" @onclick="()=> LoadGame(game)" class="btn btn-warning">Load</button>
+                                               </td>
+                                            </tr>
+                                        
+
+                                        }
+                                       
+                                       
+                                    </tbody>
+                                </table>
+
+
+
+
+                </div>
+
+
+            </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
         <div>         <H1> @(isMate ? "Mate" : "") </H1></div>
         <div style="margin-bottom: 46px;border: blue;  border-width: 5px;   border-style: solid; padding: 5px; float:left">
-    
+
             <table class="chess-board">
                 <tbody>
-          
+
                     @for (var y = 0; y < Board.MAX_COLS; y++)
                     {
-                        <tr>
-                            <td>@(8 - y)</td>
+                                <tr>
+                                    <td>@(8 - y)</td>
                             @for (char c = 'a'; c <= 'h'; c++)
                             {
                                 int x = CommonUtils.PositionFromFile(c);
@@ -158,18 +230,18 @@
                                 string className = (y + x) % 2 == 0 ? "light" : "dark";
                                 Piece? piece = chessEngine.GetPiece(position);
 
-                                <td draggable="true"
-                                    ondragover="allowDrop(event)"
-                                    @ondragstart="@(e => HandleDragEnter(e,position))"
-                                    @ondrop="@(e => HandleDragDroped(e,position))"
-                                    width="70px" height="70px" style="font-size:40px; text-align:center;" class="@className">
+                                                <td draggable="true"
+                                                    ondragover="allowDrop(event)"
+                                                    @ondragstart="@(e => HandleDragEnter(e,position))"
+                                                    @ondrop="@(e => HandleDragDroped(e,position))"
+                                                    width="70px" height="70px" style="font-size:40px; text-align:center;" class="@className">
                                     @ChessService.GetIcon(piece)
-                                </td>
+                                                </td>
                             }
 
 
 
-                        </tr>
+                                </tr>
                     }
                     <tr>
                         <th> </th>
@@ -190,87 +262,4 @@
 
 </body>
 
-@code {
-    private int depth = 1;
-    private ChessEngine chessEngine;
-    private Position originalPosition;
 
-    //Evaluate move.
-    private string movePosition=  string.Empty;
-    private int? moveCounter = null;
-    private int? moveValue = null;
-    private string moveTime= string.Empty;
-
-
-    private string currentPlayer = "";
-    private string csvFile = "";
-    private string Info = "";
-
-    private bool isWhiteCheck = false;
-    private bool isWhiteMate = false;
-
-    private bool isBlackCheck = false;
-    private bool isBlackMate = false;
-
-    private bool isMate = false;
-    private bool isAutoPay = true;
-
-    private string isCurrentPlayer(PieceColor color) => chessEngine.CurrentPlayer ==color ? "YES" : "NO";
-
-    //Next & Prev
-    private void NextMove() =>  chessEngine.Next();
-    private void PrevMove()=> chessEngine.Prev();
-
-    //Counter
-    private void IncCount() =>    depth++;
-    private void DecCount() =>   depth--;
-
-    private void DisableAutoPlay() => isAutoPay = false;
-    private void EnableAutoPlay() => isAutoPay = true;
-
-    private void Play()=>  chessEngine.PlayBestMove(depth);
-
-    private void SaveBoard() => chessEngine.SaveBoard(csvFile);
-
-    private void LoadBoard()=>  Info = ChessService.LoadBoard(chessEngine, csvFile);
-
-    private void EvaluateMove()
-    {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
-        (movePosition, moveCounter, moveValue) = chessEngine.EvaluateBestMove(depth, chessEngine.CurrentPlayer);
-        moveTime = $"{stopwatch.Elapsed.Minutes}:{stopwatch.Elapsed.Seconds}:{stopwatch.Elapsed.Milliseconds}";
-
-        stopwatch.Stop();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        chessEngine = chessService.GetChessEngine();
-    }
-
-    private async Task HandleDragDroped(DragEventArgs e, Position destination)
-    {
-        var isLegalMove = chessEngine.IsLegalMove(originalPosition, destination);
-
-        if (isLegalMove)
-        {
-            chessEngine.DropPiece(originalPosition, destination);
-            currentPlayer = chessEngine.CurrentPlayer.ToString();
-
-            if (isAutoPay && !isMate)
-            {
-                await Task.Delay(1000 / depth);
-                Play();
-            }
-        }
-    }
-
-    private void HandleDragEnter(DragEventArgs e, Position position)
-    {
-        originalPosition = position;
-    }
-
-
-}

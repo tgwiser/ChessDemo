@@ -27,14 +27,10 @@ namespace ChessCommon.Persistense
             return game!;
         }
 
-        public async Task<List<string>> GetGamesNameAsync(string name)
+        public async Task<Game> GetGameAsync(string name)
         {
-            var games = await _chessContext.Games
-                .Where(g=>g.Name == name)
-                .Select(g=>g.Name)
-                .ToListAsync();
-
-            return games;
+            var game = await _chessContext.Games.FirstOrDefaultAsync(g => g.Name == name);
+            return game;
         }
 
         public async Task<List<string>> GetGamesNameAsync()
@@ -46,7 +42,20 @@ namespace ChessCommon.Persistense
             return games;
         }
 
-     
+        public async Task DeleteGame(string name)
+        {
+            var game = await _chessContext.Games.FirstOrDefaultAsync(g => g.Name == name);
+            var c1 = _chessContext.Games.Remove(game!);
+            await _chessContext.SaveChangesAsync();
+
+        }
+
+        public async Task UpdateGame(string name, string moves)
+        {
+            var game = await _chessContext.Games.FirstOrDefaultAsync(g => g.Name == name);
+            var c1 = _chessContext.Games.Update(game!);
+            await _chessContext.SaveChangesAsync();
+        }
     }
 
 
@@ -56,8 +65,12 @@ namespace ChessCommon.Persistense
 
         Task<Game> LoadAsync(string name);
 
-        Task<List<string>> GetGamesNameAsync(string name);
+        Task<Game> GetGameAsync(string name);
 
         Task<List<string>> GetGamesNameAsync();
+
+        Task DeleteGame(string name);
+
+        Task UpdateGame(string name, string moves);
     }
 }

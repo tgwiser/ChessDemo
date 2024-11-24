@@ -11,15 +11,20 @@ namespace ChessCommon
     {
         public static IServiceCollection AddChessServices(this IServiceCollection services,IConfiguration configuration)
         {
+            //Persistense
+            var connectionString = configuration.GetConnectionString("ChessDatabaseConnectionString");
+            services.AddDbContext<ChessDBContext>(options => options.UseSqlServer(connectionString));
+            services.AddScoped<IGamePersistenseManager, GamePersistenseManager>();
+
+
+            services.AddScoped<IChessRepository, ChessRepository>();
             services.AddScoped<IBoardManager, BoardManager>();
             services.AddScoped<IPositionEvaluator, PositionEvaluator>();
             services.AddScoped<IGameEvaluator, GameEvaluator>();
-            services.AddScoped<IGamePersistenseManager, GamePersistenseManager>();
-            services.AddScoped<IChessRepository, ChessRepository>();
+ 
+    
 
-            //Persistense
-            var connectionString = configuration.GetConnectionString("ChessDatabaseConnectionString");
-            services.AddDbContext<ChessDBContext>(options =>options.UseSqlServer(connectionString));
+
 
             return services;
         }

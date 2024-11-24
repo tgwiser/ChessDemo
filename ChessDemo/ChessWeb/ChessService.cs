@@ -10,7 +10,7 @@ namespace ChessWeb
     {
         IPositionEvaluator PositionEvaluator;
         IBoardManager BoardManager;
-        IGameEvaluator GameEvaluator;
+        IGameEvaluator _gameEvaluator;
         IGamePersistenseManager _gamePersistenseManager;
 
         public ChessService(IPositionEvaluator positionCalculator,IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseManager gamePersistenseManager)
@@ -18,10 +18,11 @@ namespace ChessWeb
             PositionEvaluator = positionCalculator;
             BoardManager = boardManager;
             _gamePersistenseManager = gamePersistenseManager;
+            _gameEvaluator = gameEvaluator;
         }
         public ChessEngine GetChessEngine()
         {
-            ChessEngine ce = new ChessEngine(PositionEvaluator, BoardManager, GameEvaluator, _gamePersistenseManager);
+            ChessEngine ce = new ChessEngine(PositionEvaluator, BoardManager, _gameEvaluator, _gamePersistenseManager);
             return ce;
         }
 
@@ -56,11 +57,6 @@ namespace ChessWeb
             };
         }
 
-        public static string LoadBoard(ChessEngine chessEngine, string fileName)
-        {
-            chessEngine.LoadBoard(fileName);
-            return "file loaded";
-        }
 
 
         public static (bool IsCheck, bool IsMate) GetCheckStatus(ChessEngine chessEngine, PieceColor color)
@@ -68,6 +64,33 @@ namespace ChessWeb
             var isCheck = chessEngine.IsCheck(color);
             var isMate = chessEngine.IsMate(color);
             return (isCheck, isMate);
+        }
+
+        public static string LoadBoard(ChessEngine chessEngine, string fileName)
+        {
+            chessEngine.LoadBoard(fileName);
+            return "file loaded";
+        }
+
+        public async static Task<List<string>> FindGames(ChessEngine chessEngine)
+        {
+            return await chessEngine.FindGames();
+        }
+
+        public async static Task<List<string>> FindGames(ChessEngine chessEngine, string filter)
+        {
+            return await chessEngine.FindGames(filter);
+        }
+
+        internal static async Task<List<string>> DeleteGame(ChessEngine chessEngine, string name)
+        {
+            await chessEngine.DeleteGame(name);
+            return await chessEngine.FindGames();
+        }
+
+        internal static async Task LoadGame(ChessEngine chessEngine, string name)
+        {
+            await chessEngine.LoadBoard(name);
         }
     }
 

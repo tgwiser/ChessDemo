@@ -134,12 +134,24 @@ public class ChessEngine
         return bestValue < -10;
     }
 
-    public void SaveBoard(string fileName)=>  _gamePersistenseManager.SaveBoard(fileName);
-
-    public void LoadBoard(string fileName)
+    public void SaveBoard(string fileName)
     {
-        _boardManager.Board = _gamePersistenseManager.GetBoard(fileName);
+        var moves = gameHistoryManager.GetMoves();
+        var movesStr = CommonUtils.GetSrcDestData(moves);
+        _gamePersistenseManager.SaveGame(fileName, movesStr);
+    }
+
+    public async Task LoadBoard(string fileName)
+    {
         _gameEvaluator.InitPlayersPieces();
+        _boardManager.Board = CommonUtils.GetIDefaultBoard();
+
+        var game = await _gamePersistenseManager.GetGame(fileName);
+        var moveData = CommonUtils.GetSrcDestData(game.Moves);
+        foreach (var srcDest in moveData)
+        {
+            DropPiece(srcDest.src, srcDest.dest);
+        }
     }
 
     public void Next()
@@ -153,4 +165,23 @@ public class ChessEngine
         if (gameHistoryManager.TryGetPrevMove(out Move? move))
             RestorePiece(move!);
     }
+
+    public async Task<List<string>> FindGames()
+    {
+        var games = await _gamePersistenseManager.GetGameNames();
+        return games;
+    }
+
+    public async Task<List<string>> FindGames(string filter)
+    {
+        var games = await _gamePersistenseManager.GetGameNames();
+        return games;
+    }
+
+    public async Task DeleteGame(string name)
+    {
+        await _gamePersistenseManager.DeleteGame(name);
+    }
+
+ 
 }

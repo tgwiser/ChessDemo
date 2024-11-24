@@ -1,4 +1,5 @@
 ﻿using ChessCommon.Models;
+using System.Text;
 
 namespace ChessCommon.Evaluators;
 
@@ -37,5 +38,10 @@ internal class GameHistoryManager
             move = gameHistory[historyIndex];
         }
         return move!=null;
+    }
+
+    internal List<Move> GetMoves()
+    {
+        return gameHistory;
     }
 }

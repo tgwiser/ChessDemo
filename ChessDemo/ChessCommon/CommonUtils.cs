@@ -1,5 +1,7 @@
-﻿using ChessCommon.Evaluators.Contracts;
+﻿using ChessCommon.Evaluators;
+using ChessCommon.Evaluators.Contracts;
 using ChessCommon.Models;
+using System.Text;
 
 namespace ChessCommon;
 
@@ -109,4 +111,31 @@ public class CommonUtils
 
         return (leftCastlingEnabled, rightCastlingEnabled);
     }
+
+
+    public static List<(Position src , Position dest)> GetSrcDestData(string moveData)
+    {
+        var srcDest = new List<(Position src, Position dest)>();
+        var moveDataArr = moveData.Split(Environment.NewLine);
+       
+        foreach (var item in moveDataArr)
+        {
+            var srcDestArr = item.Split(',');
+            if(srcDestArr.Length ==2)
+                srcDest.Add((new Position(srcDestArr[0]), new Position(srcDestArr[1])));
+        }
+        return srcDest;
+
+    }
+
+    internal static string GetSrcDestData(List<Move> moves)
+    {
+        StringBuilder movesStr = new StringBuilder();
+        foreach (var move in moves)
+        {
+            movesStr.AppendLine(move.MoveData);
+        }
+        return movesStr.ToString();
+    }
+
 }
