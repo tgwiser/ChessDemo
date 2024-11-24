@@ -19,7 +19,9 @@ namespace ChessWeb
             BoardManager = boardManager;
             _gamePersistenseManager = gamePersistenseManager;
             _gameEvaluator = gameEvaluator;
+
         }
+        
         public ChessEngine GetChessEngine()
         {
             ChessEngine ce = new ChessEngine(PositionEvaluator, BoardManager, _gameEvaluator, _gamePersistenseManager);
@@ -55,15 +57,6 @@ namespace ChessWeb
                 PieceType.Pawn => pieceSymbolValue + 5,
                 _ => throw new Exception("Not existing piece"),
             };
-        }
-
-
-
-        public static (bool IsCheck, bool IsMate) GetCheckStatus(ChessEngine chessEngine, PieceColor color)
-        {
-            var isCheck = chessEngine.IsCheck(color);
-            var isMate = chessEngine.IsMate(color);
-            return (isCheck, isMate);
         }
 
         public static string LoadBoard(ChessEngine chessEngine, string fileName)

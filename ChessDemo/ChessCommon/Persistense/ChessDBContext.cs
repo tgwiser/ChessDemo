@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ChessCommon.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChessCommon.Persistense
 {

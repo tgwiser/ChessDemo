@@ -1,21 +1,10 @@
 ﻿using ChessCommon.Evaluators.Contracts;
 using ChessCommon.Models;
-using System.Text;
 
 namespace ChessCommon.Persistense;
 
 public class GamePersistenseManager: IGamePersistenseManager
 {
-    /// <summary>
-    /// Board y-dimension
-    /// </summary>
-    public const int MAX_ROWS = 8;
-
-    /// <summary>
-    /// Board x-dimension
-    /// </summary>
-    public const int MAX_COLS = 8;
-
     public IBoardManager _boardManager;
     private readonly IChessRepository _chessRepository;
 

@@ -101,7 +101,7 @@ namespace ChessWeb.Pages
 
                 if (isAutoPay && !isMate)
                 {
-                    await Task.Delay(1000 / depth);
+                    await Task.Delay(3000 / depth);
                     Play();
                 }
             }

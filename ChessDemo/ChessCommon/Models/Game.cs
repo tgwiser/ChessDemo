@@ -1,4 +1,4 @@
-﻿namespace ChessCommon.Persistense
+﻿namespace ChessCommon.Models
 {
     public class Game
     {

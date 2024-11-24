@@ -134,6 +134,21 @@ public class ChessEngine
         return bestValue < -10;
     }
 
+
+    public void Next()
+    {
+        if (gameHistoryManager.TryGetNextMove(out Move? move))
+            DropPiece(move!);
+    }
+
+    public void Prev()
+    {
+        if (gameHistoryManager.TryGetPrevMove(out Move? move))
+            RestorePiece(move!);
+    }
+
+
+    //Save load games.
     public void SaveBoard(string fileName)
     {
         var moves = gameHistoryManager.GetMoves();
@@ -152,18 +167,6 @@ public class ChessEngine
         {
             DropPiece(srcDest.src, srcDest.dest);
         }
-    }
-
-    public void Next()
-    {
-        if (gameHistoryManager.TryGetNextMove(out Move? move))
-            DropPiece(move!);
-    }
-
-    public void Prev()
-    {
-        if (gameHistoryManager.TryGetPrevMove(out Move? move))
-            RestorePiece(move!);
     }
 
     public async Task<List<string>> FindGames()
