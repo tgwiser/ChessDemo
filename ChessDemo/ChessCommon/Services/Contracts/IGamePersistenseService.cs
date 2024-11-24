@@ -1,8 +1,8 @@
 ﻿using ChessCommon.Models;
 
-namespace ChessCommon.Persistense
+namespace ChessCommon.Services.Contracts
 {
-    public interface IGamePersistenseManager
+    public interface IGamePersistenseService
     {
         Task<Game> GetGame(string fileName);
 
@@ -10,7 +10,7 @@ namespace ChessCommon.Persistense
 
         Task UpdateGame(string fileName, string moves);
 
-        Task<List<string>> GetGameNames();
+        Task<List<string>> GetGameNames(string filter);
 
         Task SaveGame(string fileName, string moves);
     }

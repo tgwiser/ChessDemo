@@ -75,7 +75,7 @@ public class Move
 
     public override string ToString()
     {
-        return $"{SrcPosition} + ->  + {DestPosition}";
+        return $"{SrcPosition} -> {DestPosition}";
     }
 
     public string MoveData { get

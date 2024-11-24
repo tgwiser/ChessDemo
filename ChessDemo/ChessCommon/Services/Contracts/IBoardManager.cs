@@ -1,6 +1,6 @@
 ﻿using ChessCommon.Models;
 
-namespace ChessCommon.Evaluators.Contracts
+namespace ChessCommon.Services.Contracts
 {
 
     public interface IBoardManager

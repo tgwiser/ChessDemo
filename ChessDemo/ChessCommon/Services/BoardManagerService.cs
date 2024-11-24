@@ -1,9 +1,9 @@
-﻿using ChessCommon.Evaluators.Contracts;
+﻿using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
 
-namespace ChessCommon.Evaluators;
+namespace ChessCommon.Services;
 
-internal class BoardManager: IBoardManager
+internal class BoardManagerService: IBoardManager
 {
     public Board? Board { get; set; }
 

@@ -1,20 +1,19 @@
-﻿using ChessCommon.Evaluators;
-using ChessCommon.Evaluators.Contracts;
+﻿using ChessCommon.Services;
+using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
-using ChessCommon.Persistense;
 
 namespace ChessCommon;
 
-public class ChessEngine
+public class ChessEngine : IChessEngine
 {
     public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
-    IGamePersistenseManager _gamePersistenseManager;
+    IGamePersistenseService _gamePersistenseManager;
 
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get { return _boardManager.GetCastleState(PieceColor.White); } }
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get { return _boardManager.GetCastleState(PieceColor.Black); } }
 
-    GameHistoryManager gameHistoryManager = new GameHistoryManager();
+    GameHistoryService gameHistoryManager = new GameHistoryService();
 
     public IPositionEvaluator PositionEvaluatorEngine { get; }
 
@@ -26,7 +25,7 @@ public class ChessEngine
     /// <summary>
     /// Creates new chess board with default pieces positions
     /// </summary>
-    public ChessEngine(IPositionEvaluator positionEvaluator, IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseManager gamePersistenseManager)
+    public ChessEngine(IPositionEvaluator positionEvaluator, IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseService gamePersistenseManager)
     {
         PositionEvaluatorEngine = positionEvaluator;
 
@@ -69,6 +68,12 @@ public class ChessEngine
         //Changing turn
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
     }
+
+    public List<Move> GetMoves()
+    {
+        return gameHistoryManager.GetMoves();
+    }
+
 
     internal void RestorePiece(Move move)
     {
@@ -171,13 +176,13 @@ public class ChessEngine
 
     public async Task<List<string>> FindGames()
     {
-        var games = await _gamePersistenseManager.GetGameNames();
+        var games = await _gamePersistenseManager.GetGameNames(string.Empty);
         return games;
     }
 
     public async Task<List<string>> FindGames(string filter)
     {
-        var games = await _gamePersistenseManager.GetGameNames();
+        var games = await _gamePersistenseManager.GetGameNames(filter);
         return games;
     }
 

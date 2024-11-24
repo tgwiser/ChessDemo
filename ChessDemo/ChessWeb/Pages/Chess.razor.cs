@@ -1,5 +1,6 @@
 using ChessCommon;
 using ChessCommon.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using System.Diagnostics;
 
@@ -8,7 +9,11 @@ namespace ChessWeb.Pages
     public partial class Chess
     {
         private int depth = 1;
-        private ChessEngine chessEngine;
+
+
+        [Inject]
+        protected ChessService _chessService { get; set; } 
+
         private Position originalPosition;
 
         //Evaluate move.
@@ -22,6 +27,7 @@ namespace ChessWeb.Pages
         private string csvFile = "";
         private string gameFilter = "";
 
+        private List<Move> moves = [];
         private List<string> gameList = [];
         private string Info = "";
 
@@ -36,36 +42,38 @@ namespace ChessWeb.Pages
 
         private string isCurrentPlayer(PieceColor color) => chessEngine.CurrentPlayer == color ? "YES" : "NO";
 
-        //Next & Prev
-        private void NextMove() => chessEngine.Next();
-        private void PrevMove() => chessEngine.Prev();
-
         //Counter
-        private void IncCount() => depth++;
-        private void DecCount() => depth--;
-
-        private void DisableAutoPlay() => isAutoPay = false;
-        private void EnableAutoPlay() => isAutoPay = true;
-
-        private void Play() => chessEngine.PlayBestMove(depth);
+        private void Play()
+        {
+            chessEngine.PlayBestMove(depth);
+            moves = chessEngine.GetMoves();
+        }
 
         private void SaveBoard() => chessEngine.SaveBoard(csvFile);
 
-        private void LoadBoard() => Info = ChessService.LoadBoard(chessEngine, csvFile);
+        private async Task LoadBoard()
+        {
+            await chessEngine.LoadBoard(csvFile);
+            moves = chessEngine.GetMoves();
+            Info = "File uploaded1";
+        } 
 
         private async Task FindGames() {
-            gameList = await ChessService.FindGames(chessEngine, gameFilter);
+            gameList = await chessEngine.FindGames(gameFilter);
         }
+
         private async Task DeleteGame(string name)
         {
-            gameList = await ChessService.DeleteGame(chessEngine, name);
+            await chessEngine.DeleteGame(name);
+            gameList = await chessEngine.FindGames();
         }
 
         private async Task LoadGame(string name)
         {
             try
             {
-                await ChessService.LoadGame(chessEngine, name);
+                await chessEngine.LoadBoard(name);
+                moves = chessEngine.GetMoves();
             }
             catch (Exception ex)
             {
@@ -87,7 +95,7 @@ namespace ChessWeb.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            chessEngine = chessService.GetChessEngine();
+            moves = chessEngine.GetMoves();
         }
 
         private async Task HandleDragDroped(DragEventArgs e, Position destination)
@@ -98,10 +106,10 @@ namespace ChessWeb.Pages
             {
                 chessEngine.DropPiece(originalPosition, destination);
                 currentPlayer = chessEngine.CurrentPlayer.ToString();
-
+                moves = chessEngine.GetMoves();
                 if (isAutoPay && !isMate)
                 {
-                    await Task.Delay(3000 / depth);
+                    await Task.Delay(1000 / depth);
                     Play();
                 }
             }

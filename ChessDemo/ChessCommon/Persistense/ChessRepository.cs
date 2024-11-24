@@ -11,23 +11,6 @@ namespace ChessCommon.Persistense
         {
             _chessContext = chessContext;
         }
-        public async Task SaveAsync(Game game)
-        {
-            _chessContext.Add(game);
-            await _chessContext.SaveChangesAsync();
-        }
-
-        public async Task<Game> LoadAsync(string name)
-        {
-            var game = await _chessContext.Games.FindAsync(name);
-            return game!;
-        }
-
-        public async Task<Game> GetGameAsync(string name)
-        {
-            var game = await _chessContext.Games.FirstOrDefaultAsync(g => g.Name == name);
-            return game;
-        }
 
         public async Task<List<string>> GetGamesNameAsync()
         {
@@ -36,6 +19,30 @@ namespace ChessCommon.Persistense
                 .ToListAsync();
 
             return games;
+        }
+
+
+        public async Task<List<string>> GetGamesNameAsync(string filter)
+        {
+            var games = await _chessContext.Games
+            .Select(g => g.Name)
+            .Where(n=>n.Contains(filter))
+            .ToListAsync();
+
+            return games;
+        }
+
+        public async Task<Game> GetGameAsync(string name)
+        {
+            var game = await _chessContext.Games.FirstOrDefaultAsync(g => g.Name == name);
+            return game;
+        }
+
+
+        public async Task SaveAsync(Game game)
+        {
+            _chessContext.Add(game);
+            await _chessContext.SaveChangesAsync();
         }
 
         public async Task DeleteGame(string name)
@@ -52,18 +59,20 @@ namespace ChessCommon.Persistense
             var c1 = _chessContext.Games.Update(game!);
             await _chessContext.SaveChangesAsync();
         }
+
+     
     }
 
 
     public interface IChessRepository
     {
-        Task SaveAsync(Game game);
+        Task<List<string>> GetGamesNameAsync();
 
-        Task<Game> LoadAsync(string name);
+        Task<List<string>> GetGamesNameAsync(string filter);
 
         Task<Game> GetGameAsync(string name);
 
-        Task<List<string>> GetGamesNameAsync();
+        Task SaveAsync(Game game);
 
         Task DeleteGame(string name);
 

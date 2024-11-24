@@ -1,14 +1,14 @@
 ﻿using ChessCommon.Models;
 using System.Text;
 
-namespace ChessCommon.Evaluators;
+namespace ChessCommon.Services;
 
-internal class GameHistoryManager
+internal class GameHistoryService
 {
     List<Move> gameHistory = new List<Move>();
     int historyIndex = 0;
 
-    public GameHistoryManager() { }
+    public GameHistoryService() { }
 
     public void AddMove(Move move)
     {

@@ -1,5 +1,5 @@
-﻿using ChessCommon.Evaluators;
-using ChessCommon.Evaluators.Contracts;
+﻿using ChessCommon.Services;
+using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
 using System.Text;
 

@@ -1,8 +1,8 @@
 ﻿using ChessCommon;
-using ChessCommon.Evaluators.Contracts;
+using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
-using ChessCommon.Persistense;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace ChessWeb
 {
@@ -11,21 +11,32 @@ namespace ChessWeb
         IPositionEvaluator PositionEvaluator;
         IBoardManager BoardManager;
         IGameEvaluator _gameEvaluator;
-        IGamePersistenseManager _gamePersistenseManager;
+        IGamePersistenseService _gamePersistenseManager;
+        IChessEngine _chessEngine;
 
-        public ChessService(IPositionEvaluator positionCalculator,IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseManager gamePersistenseManager)
+        public ChessService(IPositionEvaluator positionCalculator,IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseService gamePersistenseManager)
         {
             PositionEvaluator = positionCalculator;
             BoardManager = boardManager;
             _gamePersistenseManager = gamePersistenseManager;
             _gameEvaluator = gameEvaluator;
-
+            _chessEngine = new ChessEngine(PositionEvaluator, BoardManager, _gameEvaluator, _gamePersistenseManager);
         }
-        
-        public ChessEngine GetChessEngine()
+
+ 
+        public string PlayBestMove(Piece? piece)
         {
-            ChessEngine ce = new ChessEngine(PositionEvaluator, BoardManager, _gameEvaluator, _gamePersistenseManager);
-            return ce;
+            if (piece == null)
+                return null;
+
+            string value = "♔";
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+
+            int pieceSymbolValue = GetSymbolValue(piece);
+
+            bytes[2] += (byte)pieceSymbolValue;
+            var w221 = Encoding.UTF8.GetString(bytes);
+            return w221;
         }
 
 
@@ -59,37 +70,6 @@ namespace ChessWeb
             };
         }
 
-        public static string LoadBoard(ChessEngine chessEngine, string fileName)
-        {
-            chessEngine.LoadBoard(fileName);
-            return "file loaded";
-        }
-
-        public async static Task<List<string>> FindGames(ChessEngine chessEngine)
-        {
-            return await chessEngine.FindGames();
-        }
-
-        public async static Task<List<string>> FindGames(ChessEngine chessEngine, string filter)
-        {
-            return await chessEngine.FindGames(filter);
-        }
-
-        internal static async Task<List<string>> DeleteGame(ChessEngine chessEngine, string name)
-        {
-            await chessEngine.DeleteGame(name);
-            return await chessEngine.FindGames();
-        }
-
-        internal static async Task LoadGame(ChessEngine chessEngine, string name)
-        {
-            await chessEngine.LoadBoard(name);
-        }
     }
-
-
-
-
-
 
 }

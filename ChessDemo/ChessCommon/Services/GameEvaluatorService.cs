@@ -1,9 +1,9 @@
-﻿using ChessCommon.Evaluators.Contracts;
+﻿using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
 
-namespace ChessCommon.Evaluators;
+namespace ChessCommon.Services;
 
-internal class GameEvaluator : IGameEvaluator
+internal class GameEvaluatorService : IGameEvaluator
 {
     public int maxDepth = 3;
 
@@ -18,7 +18,7 @@ internal class GameEvaluator : IGameEvaluator
     public int Counter { get; private set; }
     public int BestValue { get; private set; }
  
-    public GameEvaluator(IPositionEvaluator positionEvaluator, IBoardManager boardManager)
+    public GameEvaluatorService(IPositionEvaluator positionEvaluator, IBoardManager boardManager)
     {
         _positionEvaluator = positionEvaluator;
         _boardManager = boardManager;

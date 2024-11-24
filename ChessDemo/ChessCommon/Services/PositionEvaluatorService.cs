@@ -1,15 +1,15 @@
-﻿using ChessCommon.Evaluators.Contracts;
+﻿using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
 
-namespace ChessCommon.Evaluators;
+namespace ChessCommon.Services;
 
-internal class PositionEvaluator : IPositionEvaluator
+internal class PositionEvaluatorService : IPositionEvaluator
 {
     public IServiceProvider ServiceProvider { get; }
 
     private IBoardManager _boardManager;
 
-    public PositionEvaluator(IServiceProvider serviceProvider, IBoardManager boardManager)
+    public PositionEvaluatorService(IServiceProvider serviceProvider, IBoardManager boardManager)
     {
         ServiceProvider = serviceProvider;
         _boardManager = boardManager;

@@ -1,22 +1,23 @@
-﻿using ChessCommon.Evaluators.Contracts;
+﻿using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
+using ChessCommon.Persistense;
 
-namespace ChessCommon.Persistense;
+namespace ChessCommon.Services;
 
-public class GamePersistenseManager: IGamePersistenseManager
+public class GamePersistenseService : IGamePersistenseService
 {
     public IBoardManager _boardManager;
     private readonly IChessRepository _chessRepository;
 
-    public GamePersistenseManager(IBoardManager boardManager, IChessRepository chessRepository)
+    public GamePersistenseService(IBoardManager boardManager, IChessRepository chessRepository)
     {
         _boardManager = boardManager;
         _chessRepository = chessRepository;
     }
 
-    public async Task SaveGame(string fileName,string movesStr)
+    public async Task SaveGame(string fileName, string movesStr)
     {
-        await _chessRepository.SaveAsync(new Game() { Moves = movesStr.ToString(), Name = fileName});
+        await _chessRepository.SaveAsync(new Game() { Moves = movesStr.ToString(), Name = fileName });
     }
 
     public async Task<Game> GetGame(string fileName)
@@ -25,9 +26,9 @@ public class GamePersistenseManager: IGamePersistenseManager
         return game;
     }
 
-    public async Task<List<string>> GetGameNames()
+    public async Task<List<string>> GetGameNames(string filter)
     {
-        var games = await _chessRepository.GetGamesNameAsync();
+        var games = await _chessRepository.GetGamesNameAsync(filter);
         return games;
     }
 
@@ -41,5 +42,5 @@ public class GamePersistenseManager: IGamePersistenseManager
         await _chessRepository.UpdateGame(name, moves);
     }
 
- 
+
 }
