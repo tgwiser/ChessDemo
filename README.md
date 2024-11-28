@@ -1,6 +1,5 @@
-# Chess engine designed with SOLID (Starting draft)
-
-This is a new project created in c#, 
+# Chess engine designed with SOLID
+This is a new project created in .netCore, 
 
 I'll implement the Minimax algorithm to determine the best moves. 
 
