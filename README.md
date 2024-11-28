@@ -22,7 +22,10 @@ I will not use existing code - for learning purpose
 - **PositionEvaluator**: Responsible of returning all possible move by piece
 - **BoardManager**: Responsible of getting & setting data on the board
 - **GameEvaluator**: highly efficient component that return the best move based on the depth search
+
+![Chess-Services drawio](https://github.com/user-attachments/assets/bf8d977f-9016-45fa-88ad-f67566d9473f)
+
   
-<img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/571ae7bd-f20b-4174-8341-4b0993db5d57">
+<img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/bf8d977f-9016-45fa-88ad-f67566d9473f">
 
 
