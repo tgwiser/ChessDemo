@@ -28,6 +28,10 @@ I will not use existing code - for learning purpose
 
 <img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/d94255b9-f369-4497-8128-a09067473602">
 
-
+## Application design 
+- **ChessWeb**: Demo client
 - **ChessEngine**: the entry point (Facade Pattern)
+
+<img width="500" alt="Chess-Models drawio (1)" src="https://github.com/user-attachments/assets/17d2e13e-aff6-498d-911b-31a612b141e3">
+
 
