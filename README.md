@@ -17,7 +17,7 @@ I will not use existing code - for learning purpose
 
 
 
-## Appication design 
+## Application design 
 - **ChessEngine**: the entry point (Facade Pattern)
 - **PositionEvaluator**: Responsible of returning all possible move by piece
 - **BoardManager**: Responsible of getting & setting data on the board
