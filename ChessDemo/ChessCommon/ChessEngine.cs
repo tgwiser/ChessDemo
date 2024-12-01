@@ -19,13 +19,19 @@ public class ChessEngine : IChessEngine
 
     public IBoardManagerService _boardManager;
     public IGameEvaluatorService _gameEvaluator;
+    public IPgnAnalyzerService _pgnAnalyzerService;
 
     private bool standardiseCastlingPositions;
 
     /// <summary>
     /// Creates new chess board with default pieces positions
     /// </summary>
-    public ChessEngine(IPositionEvaluatorService positionEvaluator, IBoardManagerService boardManager, IGameEvaluatorService gameEvaluator, IGamePersistenseService gamePersistenseManager)
+    public ChessEngine(
+        IPositionEvaluatorService positionEvaluator, 
+        IBoardManagerService boardManager, 
+        IGameEvaluatorService gameEvaluator, 
+        IGamePersistenseService gamePersistenseManager,
+        IPgnAnalyzerService pgnAnalyzerService)
     {
         PositionEvaluatorEngine = positionEvaluator;
 
@@ -33,6 +39,7 @@ public class ChessEngine : IChessEngine
         _boardManager.Board = CommonUtils.GetIDefaultBoard();
         _gameEvaluator = gameEvaluator;
         _gamePersistenseManager = gamePersistenseManager;
+        _pgnAnalyzerService = pgnAnalyzerService;
     }
 
     public void DropPiece(Position srcPosition, Position destPosition)
@@ -191,5 +198,39 @@ public class ChessEngine : IChessEngine
         await _gamePersistenseManager.DeleteGame(name);
     }
 
- 
+
+    //Pgn.
+    public void LoadPgnBoard(string pgnStr)
+    {
+        _gameEvaluator.InitPlayersPieces();
+        _boardManager.Board = CommonUtils.GetIDefaultBoard();
+
+        _pgnAnalyzerService.GetGame(pgnStr);
+
+        (Move moveWhite, Move moveBlack) = _pgnAnalyzerService.Next();
+        while (moveWhite!=null)
+        {
+            _boardManager.DropPiece(moveWhite);
+            gameHistoryManager.AddMove(moveWhite);
+
+            if (moveBlack != null)
+            {
+                _boardManager.DropPiece(moveBlack);
+                gameHistoryManager.AddMove(moveBlack);
+            }
+
+            (moveWhite, moveBlack) = _pgnAnalyzerService.Next();
+        }
+
+        _gameEvaluator.InitPlayersPieces();
+    }
+
+
+
+    public void ResetPgnMoves()
+    {
+        while (gameHistoryManager.TryGetPrevMove(out Move? move))
+            _boardManager.RestorePiece(move);
+    }
+
 }

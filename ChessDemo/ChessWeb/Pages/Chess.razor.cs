@@ -25,6 +25,7 @@ namespace ChessWeb.Pages
 
         private string currentPlayer = "";
         private string csvFile = "";
+        private string pgnStr = "";
         private string gameFilter = "";
 
         private List<Move> moves = [];
@@ -121,5 +122,14 @@ namespace ChessWeb.Pages
         }
 
 
+        private void LoadPgn(MouseEventArgs e)
+        {
+            chessEngine.LoadPgnBoard(pgnStr);
+        }
+
+        private void ResetPgnMoves(MouseEventArgs e)
+        {
+            chessEngine.ResetPgnMoves();
+        }
     }
 }

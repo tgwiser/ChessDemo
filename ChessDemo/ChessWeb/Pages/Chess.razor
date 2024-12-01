@@ -164,11 +164,25 @@
       <div class="accordion-body">
             <div id="collapseSaveLoad" class=" chess-info" style="clear:both">
                 Save/Load
+                <div class=" chess-info" style="clear:both">
+                    <button class="btn btn-primary  btn-sm" @onclick="LoadPgn">
+                        LoadPgn
+                    </button>
+
+                     <input type="text" @bind="pgnStr" placeholder="" />
+
+                     <button class="btn btn-primary  btn-sm" @onclick="ResetPgnMoves">
+                        Reset
+                    </button>
+                  </div>
+
+
                  <div class=" chess-info" style="clear:both">
+                    <button class="btn btn-primary  btn-sm" @onclick="SaveBoard">
+                        Save
+                    </button>
                 <input type="text" @bind="csvFile" placeholder="" />
-                <button class="btn btn-primary  btn-sm" @onclick="SaveBoard">
-                    Save
-                </button>
+             
                   </div>
                   <div class=" chess-info" style="clear:both">
                 <button class="btn btn-primary  btn-sm" @onclick="FindGames">

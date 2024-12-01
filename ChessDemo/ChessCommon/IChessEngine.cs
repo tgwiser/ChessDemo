@@ -23,5 +23,10 @@ namespace ChessCommon
         (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get;}
 
         (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get; }
+
+
+         void LoadPgnBoard(string fileName);
+
+         void ResetPgnMoves();
     }
 }

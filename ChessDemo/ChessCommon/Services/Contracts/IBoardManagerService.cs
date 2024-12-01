@@ -19,5 +19,8 @@ namespace ChessCommon.Services.Contracts
         Piece? GetPiece(int y, int x);
 
         Piece?[,] GetPieces();
+
+        List<Piece?> GetAllPieces(PieceColor color);
+
     }
 }

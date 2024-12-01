@@ -3,7 +3,7 @@ using ChessCommon.Models;
 
 namespace ChessCommon.Services;
 
-internal class BoardManagerService: IBoardManagerService
+public class BoardManagerService: IBoardManagerService
 {
     public Board? Board { get; set; }
 
@@ -112,5 +112,20 @@ internal class BoardManagerService: IBoardManagerService
     public Piece?[,] GetPieces()
     {
         return Board!.Pieces;
+    }
+
+    List<Piece?> IBoardManagerService.GetAllPieces(PieceColor color)
+    {
+        List<Piece?> pieces = new List<Piece?>();
+        for (int x = 0; x < 8; x++)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                var piece = GetPiece(y, x);
+                if (piece != null && piece.Color == color)
+                    pieces.Add(piece);
+            }
+        }
+        return pieces;
     }
 }

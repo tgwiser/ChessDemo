@@ -3,15 +3,12 @@ using ChessCommon.Models;
 
 namespace ChessCommon.Services;
 
-internal class PositionEvaluatorService : IPositionEvaluatorService
+public class PositionEvaluatorService : IPositionEvaluatorService
 {
-    public IServiceProvider ServiceProvider { get; }
-
     private IBoardManagerService _boardManager;
 
-    public PositionEvaluatorService(IServiceProvider serviceProvider, IBoardManagerService boardManager)
+    public PositionEvaluatorService( IBoardManagerService boardManager)
     {
-        ServiceProvider = serviceProvider;
         _boardManager = boardManager;
     }
 
