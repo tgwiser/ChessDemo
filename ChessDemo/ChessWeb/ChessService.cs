@@ -8,13 +8,13 @@ namespace ChessWeb
 {
     public class ChessService
     {
-        IPositionEvaluator PositionEvaluator;
-        IBoardManager BoardManager;
-        IGameEvaluator _gameEvaluator;
+        IPositionEvaluatorService PositionEvaluator;
+        IBoardManagerService BoardManager;
+        IGameEvaluatorService _gameEvaluator;
         IGamePersistenseService _gamePersistenseManager;
         IChessEngine _chessEngine;
 
-        public ChessService(IPositionEvaluator positionCalculator,IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseService gamePersistenseManager)
+        public ChessService(IPositionEvaluatorService positionCalculator,IBoardManagerService boardManager, IGameEvaluatorService gameEvaluator, IGamePersistenseService gamePersistenseManager)
         {
             PositionEvaluator = positionCalculator;
             BoardManager = boardManager;

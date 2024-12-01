@@ -94,7 +94,7 @@ public class CommonUtils
     }
 
 
-    public static (bool, bool) IsDestinationStateChanged(Piece piece, IBoardManager boardManager)
+    public static (bool, bool) IsDestinationStateChanged(Piece piece, IBoardManagerService boardManager)
     {
         if (piece.Type != PieceType.King && piece.Type != PieceType.Rook)
             return (false, false);

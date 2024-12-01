@@ -2,7 +2,7 @@
 
 namespace ChessCommon.Services.Contracts;
 
-public interface IPositionEvaluator
+public interface IPositionEvaluatorService
 {
     List<Position> GetLegalPositions(Piece srcPiece);
 

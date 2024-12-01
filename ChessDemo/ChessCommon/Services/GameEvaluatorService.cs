@@ -3,12 +3,12 @@ using ChessCommon.Models;
 
 namespace ChessCommon.Services;
 
-internal class GameEvaluatorService : IGameEvaluator
+internal class GameEvaluatorService : IGameEvaluatorService
 {
     public int maxDepth = 3;
 
-    IPositionEvaluator _positionEvaluator;
-    IBoardManager _boardManager;
+    IPositionEvaluatorService _positionEvaluator;
+    IBoardManagerService _boardManager;
     private IDictionary<int, Piece> BlackPieces = new Dictionary<int, Piece>();
     private IDictionary<int, Piece> WhitePieces = new Dictionary<int, Piece>();
     PieceColor CurrentPlayer;
@@ -18,7 +18,7 @@ internal class GameEvaluatorService : IGameEvaluator
     public int Counter { get; private set; }
     public int BestValue { get; private set; }
  
-    public GameEvaluatorService(IPositionEvaluator positionEvaluator, IBoardManager boardManager)
+    public GameEvaluatorService(IPositionEvaluatorService positionEvaluator, IBoardManagerService boardManager)
     {
         _positionEvaluator = positionEvaluator;
         _boardManager = boardManager;
@@ -83,6 +83,7 @@ internal class GameEvaluatorService : IGameEvaluator
     {
         var playerPieces = selectedPlayer == PieceColor.White ? WhitePieces : BlackPieces;
         var currentLevelBestValue = isMax ? -1000 : 1000;
+        Random rnd = new Random();
         foreach (Piece piece in playerPieces.Values.ToList())
         {
             var legalPositions = _positionEvaluator.GetLegalPositions(piece);
@@ -114,11 +115,11 @@ internal class GameEvaluatorService : IGameEvaluator
 
                     DropPiece(move, srcKey, destKey, selectedPlayer);
 
-                    bool isSkipprd = false;
+                    //bool isSkipprd =   rnd.Next(1, 20)  < 8;
 
-                    if (isSkipprd)
-                        capturePieceValue = isMax ? 10 : -10;
-                    else
+                    //if (isSkipprd)
+                    //    capturePieceValue = isMax ? 10 : -10;
+                    //else
                         capturePieceValue = EvaluateBestMove(depth - 1, CurrentPlayer, !isMax) + capturePieceValue;
 
                     if (IsBestValue(currentLevelBestValue, capturePieceValue, isMax))

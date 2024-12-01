@@ -15,17 +15,17 @@ public class ChessEngine : IChessEngine
 
     GameHistoryService gameHistoryManager = new GameHistoryService();
 
-    public IPositionEvaluator PositionEvaluatorEngine { get; }
+    public IPositionEvaluatorService PositionEvaluatorEngine { get; }
 
-    public IBoardManager _boardManager;
-    public IGameEvaluator _gameEvaluator;
+    public IBoardManagerService _boardManager;
+    public IGameEvaluatorService _gameEvaluator;
 
     private bool standardiseCastlingPositions;
 
     /// <summary>
     /// Creates new chess board with default pieces positions
     /// </summary>
-    public ChessEngine(IPositionEvaluator positionEvaluator, IBoardManager boardManager, IGameEvaluator gameEvaluator, IGamePersistenseService gamePersistenseManager)
+    public ChessEngine(IPositionEvaluatorService positionEvaluator, IBoardManagerService boardManager, IGameEvaluatorService gameEvaluator, IGamePersistenseService gamePersistenseManager)
     {
         PositionEvaluatorEngine = positionEvaluator;
 

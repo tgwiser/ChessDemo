@@ -3,7 +3,7 @@ using ChessCommon.Models;
 
 namespace ChessCommon.Services;
 
-internal class BoardManagerService: IBoardManager
+internal class BoardManagerService: IBoardManagerService
 {
     public Board? Board { get; set; }
 

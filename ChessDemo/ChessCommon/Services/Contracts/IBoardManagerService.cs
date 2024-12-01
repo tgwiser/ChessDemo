@@ -3,7 +3,7 @@
 namespace ChessCommon.Services.Contracts
 {
 
-    public interface IBoardManager
+    public interface IBoardManagerService
     {
         Board? Board { get; set; }
 

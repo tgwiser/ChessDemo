@@ -2,7 +2,7 @@
 
 namespace ChessCommon.Services.Contracts;
 
-public interface IGameEvaluator
+public interface IGameEvaluatorService
 {
     int BestValue { get; }
     int Counter { get; }

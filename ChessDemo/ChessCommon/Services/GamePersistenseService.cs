@@ -6,10 +6,10 @@ namespace ChessCommon.Services;
 
 public class GamePersistenseService : IGamePersistenseService
 {
-    public IBoardManager _boardManager;
+    public IBoardManagerService _boardManager;
     private readonly IChessRepository _chessRepository;
 
-    public GamePersistenseService(IBoardManager boardManager, IChessRepository chessRepository)
+    public GamePersistenseService(IBoardManagerService boardManager, IChessRepository chessRepository)
     {
         _boardManager = boardManager;
         _chessRepository = chessRepository;

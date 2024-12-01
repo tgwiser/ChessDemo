@@ -18,9 +18,9 @@ namespace ChessCommon
 
 
             services.AddScoped<IChessRepository, ChessRepository>();
-            services.AddScoped<IBoardManager, BoardManagerService>();
-            services.AddScoped<IPositionEvaluator, PositionEvaluatorService>();
-            services.AddScoped<IGameEvaluator, GameEvaluatorService>();
+            services.AddScoped<IBoardManagerService, BoardManagerService>();
+            services.AddScoped<IPositionEvaluatorService, PositionEvaluatorService>();
+            services.AddScoped<IGameEvaluatorService, GameEvaluatorService>();
             services.AddScoped<IChessEngine, ChessEngine>();
 
 
