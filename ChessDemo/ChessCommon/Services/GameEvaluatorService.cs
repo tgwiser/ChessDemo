@@ -1,5 +1,5 @@
-﻿using ChessCommon.Services.Contracts;
-using ChessCommon.Models;
+﻿using ChessCommon.Models;
+using ChessCommon.Services.Contracts;
 
 namespace ChessCommon.Services;
 
@@ -17,7 +17,7 @@ internal class GameEvaluatorService : IGameEvaluatorService
 
     public int Counter { get; private set; }
     public int BestValue { get; private set; }
- 
+
     public GameEvaluatorService(IPositionEvaluatorService positionEvaluator, IBoardManagerService boardManager)
     {
         _positionEvaluator = positionEvaluator;
@@ -25,7 +25,7 @@ internal class GameEvaluatorService : IGameEvaluatorService
     }
 
     public void InitPlayersPieces()
-    { 
+    {
         BlackPieces = new Dictionary<int, Piece>();
         WhitePieces = new Dictionary<int, Piece>();
 
@@ -37,7 +37,7 @@ internal class GameEvaluatorService : IGameEvaluatorService
                 if (piece != null)
                 {
                     var key = GetPieceHashKey(piece.Position);
-                    if(piece.Color == PieceColor.White)
+                    if (piece.Color == PieceColor.White)
                         WhitePieces.Add(key, piece);
                     else
                         BlackPieces.Add(key, piece);
@@ -60,7 +60,7 @@ internal class GameEvaluatorService : IGameEvaluatorService
 
                 if (piece.Color == PieceColor.White)
                     totalWhite = EvaluatePiece(piece);
-               else
+                else
                     totalBlack = EvaluatePiece(piece);
             }
         }
@@ -120,7 +120,7 @@ internal class GameEvaluatorService : IGameEvaluatorService
                     //if (isSkipprd)
                     //    capturePieceValue = isMax ? 10 : -10;
                     //else
-                        capturePieceValue = EvaluateBestMove(depth - 1, CurrentPlayer, !isMax) + capturePieceValue;
+                    capturePieceValue = EvaluateBestMove(depth - 1, CurrentPlayer, !isMax) + capturePieceValue;
 
                     if (IsBestValue(currentLevelBestValue, capturePieceValue, isMax))
                     {
@@ -150,7 +150,7 @@ internal class GameEvaluatorService : IGameEvaluatorService
         // Moving piece to its new position
         if (move.CapturedPiece != null)
             oponmentPieces.Add(destinationKey, move.CapturedPiece);
-      
+
         currentPieces.Remove(destinationKey);
         currentPieces.Add(playerKey, move.Piece);
 
@@ -159,15 +159,15 @@ internal class GameEvaluatorService : IGameEvaluatorService
             Piece theRock = null;
             try
             {
-                 theRock = currentPieces[move.Castle.DestRockKey];
+                theRock = currentPieces[move.Castle.DestRockKey];
                 currentPieces.Remove(move.Castle.DestRockKey);
                 currentPieces.Add(move.Castle.SrcRockKey, theRock);
             }
             catch (Exception)
             {
-          
+
             }
-         
+
         }
 
         //Update board

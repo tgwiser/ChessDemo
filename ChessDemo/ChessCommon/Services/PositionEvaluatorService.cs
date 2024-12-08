@@ -1,5 +1,5 @@
-﻿using ChessCommon.Services.Contracts;
-using ChessCommon.Models;
+﻿using ChessCommon.Models;
+using ChessCommon.Services.Contracts;
 
 namespace ChessCommon.Services;
 
@@ -7,7 +7,7 @@ public class PositionEvaluatorService : IPositionEvaluatorService
 {
     private IBoardManagerService _boardManager;
 
-    public PositionEvaluatorService( IBoardManagerService boardManager)
+    public PositionEvaluatorService(IBoardManagerService boardManager)
     {
         _boardManager = boardManager;
     }
@@ -90,7 +90,7 @@ public class PositionEvaluatorService : IPositionEvaluatorService
     {
         List<Position> legalMoves = [];
 
-        (bool leftCastlingEnabled,bool rightCastlingEnabled) = _boardManager.GetCastleState(pieceColor);
+        (bool leftCastlingEnabled, bool rightCastlingEnabled) = _boardManager.GetCastleState(pieceColor);
 
         for (short x = -1; x <= 1; x++)
         {

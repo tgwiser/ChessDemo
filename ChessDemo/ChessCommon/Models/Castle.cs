@@ -23,7 +23,7 @@ public class Castle
         IsRightCastle = originalPosition.X == 6;
         IsLeftCastle = originalPosition.X == 2;
         SrcRock = new Position(originalPosition.Y, IsRightCastle ? 7 : 0);
-        DestRock = new Position(originalPosition.Y, IsRightCastle ? 5: 3);
+        DestRock = new Position(originalPosition.Y, IsRightCastle ? 5 : 3);
     }
 
 }

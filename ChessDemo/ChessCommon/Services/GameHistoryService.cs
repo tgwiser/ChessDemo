@@ -1,5 +1,4 @@
 ﻿using ChessCommon.Models;
-using System.Text;
 
 namespace ChessCommon.Services;
 
@@ -37,7 +36,7 @@ internal class GameHistoryService
             historyIndex--;
             move = gameHistory[historyIndex];
         }
-        return move!=null;
+        return move != null;
     }
 
     internal List<Move> GetMoves()

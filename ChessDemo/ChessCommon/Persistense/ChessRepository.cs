@@ -26,7 +26,7 @@ namespace ChessCommon.Persistense
         {
             var games = await _chessContext.Games
             .Select(g => g.Name)
-            .Where(n=>n.Contains(filter))
+            .Where(n => n.Contains(filter))
             .ToListAsync();
 
             return games;
@@ -60,7 +60,7 @@ namespace ChessCommon.Persistense
             await _chessContext.SaveChangesAsync();
         }
 
-     
+
     }
 
 

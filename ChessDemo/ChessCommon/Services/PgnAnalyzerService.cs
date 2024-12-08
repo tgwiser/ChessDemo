@@ -1,12 +1,6 @@
 ﻿using ChessCommon.Models;
 using ChessCommon.Services.Contracts;
-using System;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ChessCommon.Services
 {
@@ -14,7 +8,7 @@ namespace ChessCommon.Services
     {
         IBoardManagerService _boardManagerService;
         IPositionEvaluatorService _positionEvaluatorService;
-       
+
         int idx = 0;
 
         public PgnAnalyzerService(IBoardManagerService boardManagerService, IPositionEvaluatorService positionEvaluatorService)
@@ -35,7 +29,7 @@ namespace ChessCommon.Services
                                    .ToArray();
 
             List<(Move MoveWhite, Move MoveBlack)> pgnMoves = [];
-          
+
             foreach (var move in moves)
             {
                 var whiteMoveStr = move.Split(" ")[0].TrimEnd('+');
@@ -55,7 +49,7 @@ namespace ChessCommon.Services
         }
 
 
-     
+
 
 
         /// <summary>
@@ -98,10 +92,10 @@ namespace ChessCommon.Services
 
             PieceType pieceType = GetPieceType(move);
 
-            Position position = pieceType == PieceType.Pawn ? 
-                GetPawnPieceSrc(move, pieceColor):
+            Position position = pieceType == PieceType.Pawn ?
+                GetPawnPieceSrc(move, pieceColor) :
                 GetNonPawnPieceSrc(move, pieceColor);
-              
+
             return position;
         }
 
@@ -117,7 +111,7 @@ namespace ChessCommon.Services
                 'R' => PieceType.Rook,
                 'Q' => PieceType.Queen,
                 'K' => PieceType.King,
-                _=> PieceType.Pawn
+                _ => PieceType.Pawn
             };
         }
 
@@ -132,16 +126,16 @@ namespace ChessCommon.Services
             bool isCapture = move.Contains("x");
             if (isCapture)
             {
-                position = new Position(destYPosition + factor,srcXPosition);
+                position = new Position(destYPosition + factor, srcXPosition);
                 return position;
             }
             else
             {
-                position = new Position(destYPosition + factor,srcXPosition);
-                if(_boardManagerService.GetPiece(position)!=null)
+                position = new Position(destYPosition + factor, srcXPosition);
+                if (_boardManagerService.GetPiece(position) != null)
                     return position;
 
-                 position = new Position(destYPosition + factor * 2,srcXPosition);
+                position = new Position(destYPosition + factor * 2, srcXPosition);
                 if (_boardManagerService.GetPiece(position) != null)
                     return position;
             }

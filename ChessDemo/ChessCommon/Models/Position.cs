@@ -45,7 +45,8 @@ public class Position
     /// <summary>
     /// Print Position
     /// </summary>
-    public override string ToString() {
+    public override string ToString()
+    {
         byte[] intBytes = BitConverter.GetBytes(97 + X);
         var file = BitConverter.ToChar(intBytes).ToString();
         return file + (Y + 1);

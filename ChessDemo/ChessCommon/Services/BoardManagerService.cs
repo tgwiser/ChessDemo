@@ -1,9 +1,9 @@
-﻿using ChessCommon.Services.Contracts;
-using ChessCommon.Models;
+﻿using ChessCommon.Models;
+using ChessCommon.Services.Contracts;
 
 namespace ChessCommon.Services;
 
-public class BoardManagerService: IBoardManagerService
+public class BoardManagerService : IBoardManagerService
 {
     public Board? Board { get; set; }
 
@@ -35,7 +35,7 @@ public class BoardManagerService: IBoardManagerService
         {
             move.Castle = new Castle(move.DestPosition);
 
-            Piece theRock =GetPiece(move.Castle.SrcRock);
+            Piece theRock = GetPiece(move.Castle.SrcRock);
             theRock.Position = move.Castle.DestRock;
             Board[move.Castle.DestRock] = theRock;
             Board[move.Castle.SrcRock] = null;
@@ -57,7 +57,7 @@ public class BoardManagerService: IBoardManagerService
         {
             move.RightCastlingEnabled = false;
             board.UpdateRightCastleState(move.Piece.Color, false);
-        
+
         }
     }
 
@@ -106,7 +106,7 @@ public class BoardManagerService: IBoardManagerService
 
     public Piece? GetPiece(int y, int x)
     {
-        return Board![y,x];
+        return Board![y, x];
     }
 
     public Piece?[,] GetPieces()

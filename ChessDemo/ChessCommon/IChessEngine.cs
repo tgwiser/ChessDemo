@@ -20,13 +20,13 @@ namespace ChessCommon
         Piece GetPiece(Position position);
         List<Move> GetMoves();
 
-        (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get;}
+        (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get; }
 
         (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get; }
 
 
-         void LoadPgnBoard(string fileName);
+        void LoadPgnBoard(string fileName);
 
-         void ResetPgnMoves();
+        void ResetPgnMoves();
     }
 }

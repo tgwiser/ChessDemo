@@ -78,10 +78,12 @@ public class Move
         return $"{SrcPosition} -> {DestPosition}";
     }
 
-    public string MoveData { get
+    public string MoveData
+    {
+        get
         {
             return $"{SrcPosition},{DestPosition}";
         }
     }
-  
+
 }

@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChessCommon.Persistense
 {
-    public class ChessDBContext: DbContext
+    public class ChessDBContext : DbContext
     {
         public DbSet<Game> Games { get; set; }
 
-        public ChessDBContext(DbContextOptions<ChessDBContext> options):base(options)
+        public ChessDBContext(DbContextOptions<ChessDBContext> options) : base(options)
         {
         }
 
@@ -26,6 +26,6 @@ namespace ChessCommon.Persistense
         {
             base.OnConfiguring(options);
         }
-  
+
     }
 }

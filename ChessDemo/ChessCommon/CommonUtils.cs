@@ -1,6 +1,5 @@
-﻿using ChessCommon.Services;
+﻿using ChessCommon.Models;
 using ChessCommon.Services.Contracts;
-using ChessCommon.Models;
 using System.Text;
 
 namespace ChessCommon;
@@ -51,7 +50,7 @@ public class CommonUtils
         return board;
     }
 
-    public static void SaveInfo(string fileName,bool whiteCasteleLeft, bool whiteCasteleRight, bool blackCasteleLeft, bool blackCasteleRight)
+    public static void SaveInfo(string fileName, bool whiteCasteleLeft, bool whiteCasteleRight, bool blackCasteleLeft, bool blackCasteleRight)
     {
         List<string> csvData =
         [
@@ -113,15 +112,15 @@ public class CommonUtils
     }
 
 
-    public static List<(Position src , Position dest)> GetSrcDestData(string moveData)
+    public static List<(Position src, Position dest)> GetSrcDestData(string moveData)
     {
         var srcDest = new List<(Position src, Position dest)>();
         var moveDataArr = moveData.Split(Environment.NewLine);
-       
+
         foreach (var item in moveDataArr)
         {
             var srcDestArr = item.Split(',');
-            if(srcDestArr.Length ==2)
+            if (srcDestArr.Length == 2)
                 srcDest.Add((new Position(srcDestArr[0]), new Position(srcDestArr[1])));
         }
         return srcDest;

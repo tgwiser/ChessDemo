@@ -1,6 +1,6 @@
-﻿using ChessCommon.Services;
+﻿using ChessCommon.Models;
+using ChessCommon.Services;
 using ChessCommon.Services.Contracts;
-using ChessCommon.Models;
 
 namespace ChessCommon;
 
@@ -8,7 +8,7 @@ public class ChessEngine : IChessEngine
 {
     public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
-    
+
 
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get { return _boardManagerService.GetCastleState(PieceColor.White); } }
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get { return _boardManagerService.GetCastleState(PieceColor.Black); } }
@@ -27,9 +27,9 @@ public class ChessEngine : IChessEngine
     /// Creates new chess board with default pieces positions
     /// </summary>
     public ChessEngine(
-        IPositionEvaluatorService positionEvaluator, 
-        IBoardManagerService boardManager, 
-        IGameEvaluatorService gameEvaluator, 
+        IPositionEvaluatorService positionEvaluator,
+        IBoardManagerService boardManager,
+        IGameEvaluatorService gameEvaluator,
         IGamePersistenseService gamePersistenseManager,
         IPgnAnalyzerService pgnAnalyzerService)
     {
@@ -47,7 +47,7 @@ public class ChessEngine : IChessEngine
         // Moving piece to its new position
         Move move = new Move(
             srcPosition,
-            destPosition, 
+            destPosition,
             GetPiece(srcPosition),
             GetPiece(destPosition));
 
@@ -67,7 +67,7 @@ public class ChessEngine : IChessEngine
 
         //Update move history.
         gameHistoryManager.AddMove(move);
-   
+
         //Reset the game evaluator.
         _gameEvaluatorService.InitPlayersPieces();
 
@@ -101,7 +101,7 @@ public class ChessEngine : IChessEngine
         if (piece == null || piece.Color != CurrentPlayer)
             return false;
 
-       var legalPositions = _positionEvaluatorEngineService.GetLegalPositions(piece);
+        var legalPositions = _positionEvaluatorEngineService.GetLegalPositions(piece);
 
         var isLegalMove = legalPositions.Exists(lp => lp == destPosition);
         return isLegalMove;
@@ -109,7 +109,7 @@ public class ChessEngine : IChessEngine
 
     public async Task<bool> IsLegalMoveAsync(Position position, Position destPosition)
     {
-        var a1  = await Task.Run(() => IsLegalMove(position, destPosition));
+        var a1 = await Task.Run(() => IsLegalMove(position, destPosition));
         return a1;
     }
 
@@ -118,12 +118,12 @@ public class ChessEngine : IChessEngine
         if (IsMate(CurrentPlayer))
             return;
         var move = _gameEvaluatorService.EvaluateBestMove(depth, CurrentPlayer);
-        if(move!=null)
+        if (move != null)
             DropPiece(move);
     }
 
 
-    public (string SelectedMove, int Counter , int BestValue) EvaluateBestMove(int depth, PieceColor color)
+    public (string SelectedMove, int Counter, int BestValue) EvaluateBestMove(int depth, PieceColor color)
     {
         _gameEvaluatorService.EvaluateBestMove(depth, color);
 
@@ -135,7 +135,7 @@ public class ChessEngine : IChessEngine
 
     public bool IsCheck(PieceColor color)
     {
-        var  opnmentColor = color == PieceColor.Black ? PieceColor.White : PieceColor.Black;
+        var opnmentColor = color == PieceColor.Black ? PieceColor.White : PieceColor.Black;
         int bestValue = EvaluateBestMove(1, opnmentColor).BestValue;
         return bestValue == 100;
     }
@@ -202,7 +202,7 @@ public class ChessEngine : IChessEngine
     //Pgn.
     public void LoadPgnBoard(string pgnStr)
     {
-         var pgnMoves = _pgnAnalyzerService.LoadGame(pgnStr);
+        var pgnMoves = _pgnAnalyzerService.LoadGame(pgnStr);
 
         foreach (var pgnMove in pgnMoves)
         {

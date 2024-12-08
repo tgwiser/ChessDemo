@@ -1,6 +1,6 @@
-﻿using ChessCommon.Services.Contracts;
-using ChessCommon.Models;
+﻿using ChessCommon.Models;
 using ChessCommon.Persistense;
+using ChessCommon.Services.Contracts;
 
 namespace ChessCommon.Services;
 
