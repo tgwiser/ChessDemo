@@ -5,7 +5,7 @@ namespace ChessCommon.Services.Contracts
 
     public interface IBoardManagerService
     {
-        Board? Board { get; set; }
+        Board? Board { get;  }
 
         void DropPiece(Move move);
 
@@ -18,9 +18,10 @@ namespace ChessCommon.Services.Contracts
 
         Piece? GetPiece(int y, int x);
 
-        Piece?[,] GetPieces();
 
         List<Piece?> GetAllPieces(PieceColor color);
-        void Reset();
+
+        void Reset(Board board = null);
+
     }
 }

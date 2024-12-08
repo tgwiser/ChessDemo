@@ -9,7 +9,7 @@ namespace ChessCommon.Tests
         public void Test1()
         {
             IBoardManagerService b = new BoardManagerService();
-            b.Board = CommonUtils.GetIDefaultBoard();
+            b.Reset();
             IPositionEvaluatorService p = new PositionEvaluatorService(b);
             IPgnAnalyzerService pgn = new PgnAnalyzerService(b,p);
             pgn.LoadGame("");

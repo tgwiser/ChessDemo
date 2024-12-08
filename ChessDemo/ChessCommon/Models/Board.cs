@@ -34,7 +34,7 @@ public class Board
     /// </summary>
     /// <param name="x">0->8</param>
     /// <param name="y">0->8</param>
-    public Piece? this[int x, int y] => Pieces[y, x];
+    public Piece? this[int y, int x] => Pieces[y, x];
 
     public Piece? this[Position pos]
     {

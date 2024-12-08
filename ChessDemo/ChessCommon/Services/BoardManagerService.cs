@@ -5,7 +5,26 @@ namespace ChessCommon.Services;
 
 public class BoardManagerService : IBoardManagerService
 {
-    public Board? Board { get; set; }
+    public Board? Board {  get; private set; }
+
+    public Piece GetPiece(Position position) => Board![position]!;
+
+    public Piece? GetPiece(int y, int x) => Board![y, x];
+
+    public List<Piece?> GetAllPieces(PieceColor color)
+    {
+        var pieces = new List<Piece?>();
+        for (int x = 0; x < 8; x++)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                var piece = GetPiece(y, x);
+                if (piece != null && piece.Color == color)
+                    pieces.Add(piece);
+            }
+        }
+        return pieces;
+    }
 
     public void DropPiece(Move move)
     {
@@ -39,25 +58,6 @@ public class BoardManagerService : IBoardManagerService
             theRock.Position = move.Castle.DestRock;
             Board[move.Castle.DestRock] = theRock;
             Board[move.Castle.SrcRock] = null;
-        }
-    }
-
-    private void UpdateLeftCastleMoveAndBoard(Move move, Board board)
-    {
-        if (GetCastleState(move.Piece.Color).IsLeftCastlingEnabled)
-        {
-            move.LeftCastlingEnabled = false;
-            board.UpdateLeftCastleState(move.Piece.Color, false);
-        }
-    }
-
-    private void UpdateRightCastleMoveAndBoard(Move move, Board board)
-    {
-        if (GetCastleState(move.Piece.Color).IsRightCastlingEnabled)
-        {
-            move.RightCastlingEnabled = false;
-            board.UpdateRightCastleState(move.Piece.Color, false);
-
         }
     }
 
@@ -99,38 +99,28 @@ public class BoardManagerService : IBoardManagerService
             (Board!.IsBlackLeftCastlingEnabled, Board!.IsBlackRightCastlingEnabled);
     }
 
-    public Piece GetPiece(Position position)
+    public void Reset(Board board = null)
     {
-        return Board![position]!;
+        Board = board ?? CommonUtils.GetIDefaultBoard(); 
     }
 
-    public Piece? GetPiece(int y, int x)
+    private void UpdateLeftCastleMoveAndBoard(Move move, Board board)
     {
-        return Board![y, x];
-    }
-
-    public Piece?[,] GetPieces()
-    {
-        return Board!.Pieces;
-    }
-
-    public List<Piece?> GetAllPieces(PieceColor color)
-    {
-        List<Piece?> pieces = new List<Piece?>();
-        for (int x = 0; x < 8; x++)
+        if (GetCastleState(move.Piece.Color).IsLeftCastlingEnabled)
         {
-            for (int y = 0; y < 8; y++)
-            {
-                var piece = GetPiece(y, x);
-                if (piece != null && piece.Color == color)
-                    pieces.Add(piece);
-            }
+            move.LeftCastlingEnabled = false;
+            board.UpdateLeftCastleState(move.Piece.Color, false);
         }
-        return pieces;
     }
 
-    public void Reset()
+    private void UpdateRightCastleMoveAndBoard(Move move, Board board)
     {
-        Board = CommonUtils.GetIDefaultBoard();
+        if (GetCastleState(move.Piece.Color).IsRightCastlingEnabled)
+        {
+            move.RightCastlingEnabled = false;
+            board.UpdateRightCastleState(move.Piece.Color, false);
+
+        }
     }
+
 }

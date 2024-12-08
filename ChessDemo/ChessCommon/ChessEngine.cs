@@ -36,7 +36,7 @@ public class ChessEngine : IChessEngine
         _positionEvaluatorEngineService = positionEvaluator;
 
         _boardManagerService = boardManager;
-        _boardManagerService.Board = CommonUtils.GetIDefaultBoard();
+        _boardManagerService.Reset();
         _gameEvaluatorService = gameEvaluator;
         _gamePersistenseManagerService = gamePersistenseManager;
         _pgnAnalyzerService = pgnAnalyzerService;
@@ -171,7 +171,8 @@ public class ChessEngine : IChessEngine
     public async Task LoadBoard(string fileName)
     {
         _gameEvaluatorService.InitPlayersPieces();
-        _boardManagerService.Board = CommonUtils.GetIDefaultBoard();
+
+        _boardManagerService.Reset();
 
         var game = await _gamePersistenseManagerService.GetGame(fileName);
         var moveData = CommonUtils.GetSrcDestData(game.Moves);
