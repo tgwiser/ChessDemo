@@ -8,18 +8,18 @@ public class ChessEngine : IChessEngine
 {
     public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
-    IGamePersistenseService _gamePersistenseManager;
+    
 
-    public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get { return _boardManager.GetCastleState(PieceColor.White); } }
-    public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get { return _boardManager.GetCastleState(PieceColor.Black); } }
+    public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get { return _boardManagerService.GetCastleState(PieceColor.White); } }
+    public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get { return _boardManagerService.GetCastleState(PieceColor.Black); } }
 
     GameHistoryService gameHistoryManager = new GameHistoryService();
 
-    public IPositionEvaluatorService PositionEvaluatorEngine { get; }
-
-    public IBoardManagerService _boardManager;
-    public IGameEvaluatorService _gameEvaluator;
-    public IPgnAnalyzerService _pgnAnalyzerService;
+    private IPositionEvaluatorService _positionEvaluatorEngineService;
+    private IGamePersistenseService _gamePersistenseManagerService;
+    private IBoardManagerService _boardManagerService;
+    private IGameEvaluatorService _gameEvaluatorService;
+    private IPgnAnalyzerService _pgnAnalyzerService;
 
     private bool standardiseCastlingPositions;
 
@@ -33,12 +33,12 @@ public class ChessEngine : IChessEngine
         IGamePersistenseService gamePersistenseManager,
         IPgnAnalyzerService pgnAnalyzerService)
     {
-        PositionEvaluatorEngine = positionEvaluator;
+        _positionEvaluatorEngineService = positionEvaluator;
 
-        _boardManager = boardManager;
-        _boardManager.Board = CommonUtils.GetIDefaultBoard();
-        _gameEvaluator = gameEvaluator;
-        _gamePersistenseManager = gamePersistenseManager;
+        _boardManagerService = boardManager;
+        _boardManagerService.Board = CommonUtils.GetIDefaultBoard();
+        _gameEvaluatorService = gameEvaluator;
+        _gamePersistenseManagerService = gamePersistenseManager;
         _pgnAnalyzerService = pgnAnalyzerService;
     }
 
@@ -57,19 +57,19 @@ public class ChessEngine : IChessEngine
 
     public Piece GetPiece(Position position)
     {
-        return _boardManager.GetPiece(position);
+        return _boardManagerService.GetPiece(position);
     }
 
     internal void DropPiece(Move move)
     {
         //Update the board.
-        _boardManager.DropPiece(move);
+        _boardManagerService.DropPiece(move);
 
         //Update move history.
         gameHistoryManager.AddMove(move);
    
         //Reset the game evaluator.
-        _gameEvaluator.InitPlayersPieces();
+        _gameEvaluatorService.InitPlayersPieces();
 
         //Pgnig.Api.Client.Models.
         //Changing turn
@@ -85,10 +85,10 @@ public class ChessEngine : IChessEngine
     internal void RestorePiece(Move move)
     {
         //Update the board.
-        _boardManager.RestorePiece(move);
+        _boardManagerService.RestorePiece(move);
 
         //Reset the game evaluator.
-        _gameEvaluator.InitPlayersPieces();
+        _gameEvaluatorService.InitPlayersPieces();
 
         //Changing turn
         CurrentPlayer = CurrentPlayer == PieceColor.Black ? PieceColor.White : PieceColor.Black;
@@ -96,12 +96,12 @@ public class ChessEngine : IChessEngine
 
     public bool IsLegalMove(Position position, Position destPosition)
     {
-        Piece piece = _boardManager.GetPiece(position);
+        Piece piece = _boardManagerService.GetPiece(position);
 
         if (piece == null || piece.Color != CurrentPlayer)
             return false;
 
-       var legalPositions = PositionEvaluatorEngine.GetLegalPositions(piece);
+       var legalPositions = _positionEvaluatorEngineService.GetLegalPositions(piece);
 
         var isLegalMove = legalPositions.Exists(lp => lp == destPosition);
         return isLegalMove;
@@ -117,7 +117,7 @@ public class ChessEngine : IChessEngine
     {
         if (IsMate(CurrentPlayer))
             return;
-        var move = _gameEvaluator.EvaluateBestMove(depth, CurrentPlayer);
+        var move = _gameEvaluatorService.EvaluateBestMove(depth, CurrentPlayer);
         if(move!=null)
             DropPiece(move);
     }
@@ -125,11 +125,11 @@ public class ChessEngine : IChessEngine
 
     public (string SelectedMove, int Counter , int BestValue) EvaluateBestMove(int depth, PieceColor color)
     {
-        _gameEvaluator.EvaluateBestMove(depth, color);
+        _gameEvaluatorService.EvaluateBestMove(depth, color);
 
-        var selectedMove = _gameEvaluator?.SelectedMove?.ToString() ?? string.Empty;
-        var moveCounter = _gameEvaluator?.Counter ?? 0;
-        var moveValue = _gameEvaluator?.BestValue ?? 0;
+        var selectedMove = _gameEvaluatorService?.SelectedMove?.ToString() ?? string.Empty;
+        var moveCounter = _gameEvaluatorService?.Counter ?? 0;
+        var moveValue = _gameEvaluatorService?.BestValue ?? 0;
         return (selectedMove, moveCounter, moveValue);
     }
 
@@ -165,15 +165,15 @@ public class ChessEngine : IChessEngine
     {
         var moves = gameHistoryManager.GetMoves();
         var movesStr = CommonUtils.GetSrcDestData(moves);
-        _gamePersistenseManager.SaveGame(fileName, movesStr);
+        _gamePersistenseManagerService.SaveGame(fileName, movesStr);
     }
 
     public async Task LoadBoard(string fileName)
     {
-        _gameEvaluator.InitPlayersPieces();
-        _boardManager.Board = CommonUtils.GetIDefaultBoard();
+        _gameEvaluatorService.InitPlayersPieces();
+        _boardManagerService.Board = CommonUtils.GetIDefaultBoard();
 
-        var game = await _gamePersistenseManager.GetGame(fileName);
+        var game = await _gamePersistenseManagerService.GetGame(fileName);
         var moveData = CommonUtils.GetSrcDestData(game.Moves);
         foreach (var srcDest in moveData)
         {
@@ -183,46 +183,34 @@ public class ChessEngine : IChessEngine
 
     public async Task<List<string>> FindGames()
     {
-        var games = await _gamePersistenseManager.GetGameNames(string.Empty);
+        var games = await _gamePersistenseManagerService.GetGameNames(string.Empty);
         return games;
     }
 
     public async Task<List<string>> FindGames(string filter)
     {
-        var games = await _gamePersistenseManager.GetGameNames(filter);
+        var games = await _gamePersistenseManagerService.GetGameNames(filter);
         return games;
     }
 
     public async Task DeleteGame(string name)
     {
-        await _gamePersistenseManager.DeleteGame(name);
+        await _gamePersistenseManagerService.DeleteGame(name);
     }
 
 
     //Pgn.
     public void LoadPgnBoard(string pgnStr)
     {
-        _gameEvaluator.InitPlayersPieces();
-        _boardManager.Board = CommonUtils.GetIDefaultBoard();
+         var pgnMoves = _pgnAnalyzerService.LoadGame(pgnStr);
 
-        _pgnAnalyzerService.GetGame(pgnStr);
-
-        (Move moveWhite, Move moveBlack) = _pgnAnalyzerService.Next();
-        while (moveWhite!=null)
+        foreach (var pgnMove in pgnMoves)
         {
-            _boardManager.DropPiece(moveWhite);
-            gameHistoryManager.AddMove(moveWhite);
+            DropPiece(pgnMove.WhiteMove);
 
-            if (moveBlack != null)
-            {
-                _boardManager.DropPiece(moveBlack);
-                gameHistoryManager.AddMove(moveBlack);
-            }
-
-            (moveWhite, moveBlack) = _pgnAnalyzerService.Next();
+            if (pgnMove.BlackMove != null)
+                DropPiece(pgnMove.BlackMove);
         }
-
-        _gameEvaluator.InitPlayersPieces();
     }
 
 
@@ -230,7 +218,7 @@ public class ChessEngine : IChessEngine
     public void ResetPgnMoves()
     {
         while (gameHistoryManager.TryGetPrevMove(out Move? move))
-            _boardManager.RestorePiece(move);
+            _boardManagerService.RestorePiece(move);
     }
 
 }

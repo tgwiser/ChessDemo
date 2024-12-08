@@ -9,8 +9,7 @@ namespace ChessCommon.Services.Contracts
 {
     public interface IPgnAnalyzerService
     {
-        void GetGame(string fileName);
+        List<(Move WhiteMove, Move BlackMove)> LoadGame(string input);
 
-        (Move MoveWhite, Move MoveBlack) Next();
     }
 }

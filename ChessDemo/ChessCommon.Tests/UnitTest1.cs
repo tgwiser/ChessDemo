@@ -12,7 +12,7 @@ namespace ChessCommon.Tests
             b.Board = CommonUtils.GetIDefaultBoard();
             IPositionEvaluatorService p = new PositionEvaluatorService(b);
             IPgnAnalyzerService pgn = new PgnAnalyzerService(b,p);
-            pgn.GetGame("");
+            pgn.LoadGame("");
         }
     }
 }

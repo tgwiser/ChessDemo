@@ -114,7 +114,7 @@ public class BoardManagerService: IBoardManagerService
         return Board!.Pieces;
     }
 
-    List<Piece?> IBoardManagerService.GetAllPieces(PieceColor color)
+    public List<Piece?> GetAllPieces(PieceColor color)
     {
         List<Piece?> pieces = new List<Piece?>();
         for (int x = 0; x < 8; x++)
@@ -127,5 +127,10 @@ public class BoardManagerService: IBoardManagerService
             }
         }
         return pieces;
+    }
+
+    public void Reset()
+    {
+        Board = CommonUtils.GetIDefaultBoard();
     }
 }

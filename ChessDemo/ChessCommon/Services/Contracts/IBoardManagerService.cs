@@ -21,6 +21,6 @@ namespace ChessCommon.Services.Contracts
         Piece?[,] GetPieces();
 
         List<Piece?> GetAllPieces(PieceColor color);
-
+        void Reset();
     }
 }
