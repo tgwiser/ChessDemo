@@ -12,8 +12,9 @@ namespace ChessCommon
         Task<List<string>> FindGames();
         bool IsLegalMove(Position originalPosition, Position destination);
         Task LoadBoard(string fileName);
-        void Next();
-        void Prev();
+        bool TryGetNextMove();
+        bool TryGetPrevMove();
+
         Task<List<string>> FindGames(string filter);
         void SaveBoard(string fileName);
         void PlayBestMove(int depth);

@@ -1,8 +1,9 @@
 ﻿using ChessCommon.Models;
+using ChessCommon.Services.Contracts;
 
 namespace ChessCommon.Services;
 
-internal class GameHistoryService
+internal class GameHistoryService : IGameHistoryService
 {
     List<Move> gameHistory = new List<Move>();
     int historyIndex = 0;
@@ -39,8 +40,14 @@ internal class GameHistoryService
         return move != null;
     }
 
-    internal List<Move> GetMoves()
+    public List<Move> GetMoves()
     {
         return gameHistory;
+    }
+
+    public void Reset()
+    {
+        gameHistory = new List<Move>();
+        historyIndex = 0;
     }
 }

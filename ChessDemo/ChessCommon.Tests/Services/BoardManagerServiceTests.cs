@@ -91,8 +91,6 @@ namespace ChessCommon.Tests.Services
             return pieces;
         }
 
-
-
         static PieceType CreatePieceTypeByPosition(int x)
         {
             if (x == 0 || x == 7)

@@ -1,4 +1,6 @@
-﻿using ChessCommon.Models;
+﻿using ChessCommon.Common;
+using ChessCommon.Extensions;
+using ChessCommon.Models;
 using ChessCommon.Services.Contracts;
 using System.Text.RegularExpressions;
 
@@ -9,8 +11,6 @@ namespace ChessCommon.Services
         IBoardManagerService _boardManagerService;
         IPositionEvaluatorService _positionEvaluatorService;
 
-        int idx = 0;
-
         public PgnAnalyzerService(IBoardManagerService boardManagerService, IPositionEvaluatorService positionEvaluatorService)
         {
             _boardManagerService = boardManagerService;
@@ -18,12 +18,11 @@ namespace ChessCommon.Services
         }
 
 
-        public List<(Move WhiteMove, Move BlackMove)> LoadGame(string input)
+        //From Pgn to Move
+        public List<(Move WhiteMove, Move BlackMove)> GetMovesFromPgnSrc(string pgnString)
         {
-            _boardManagerService.Reset();
-
             // Regular expression to split by move numbers (e.g., "1.", "2.", etc.)
-            string[] moves = Regex.Split(input, @"\b\d+\.")
+            string[] moves = Regex.Split(pgnString, @"\b\d+\.")
                                    .Where(x => !string.IsNullOrWhiteSpace(x))
                                    .Select(x => x.Trim())
                                    .ToArray();
@@ -33,32 +32,46 @@ namespace ChessCommon.Services
             foreach (var move in moves)
             {
                 var whiteMoveStr = move.Split(" ")[0].TrimEnd('+');
-                var moveWhite = CreatePgnMove(whiteMoveStr, PieceColor.White);
+                var moveWhite = GetMoveFromPgn(whiteMoveStr, PieceColor.White);
                 _boardManagerService.DropPiece(moveWhite);
 
                 var blackMoveStr = move.Split(" ")[1].TrimEnd('+');
-                var moveBlack = CreatePgnMove(blackMoveStr, PieceColor.Black);
+                var moveBlack = GetMoveFromPgn(blackMoveStr, PieceColor.Black);
                 _boardManagerService.DropPiece(moveBlack);
                 pgnMoves.Add((moveWhite, moveBlack));
             }
 
-            _boardManagerService.Reset();
+            return pgnMoves;
+
+        }
+
+        public List<string> GetPgnMovesFromPgnSrc(string pgnString)
+        {
+            // Regular expression to split by move numbers (e.g., "1.", "2.", etc.)
+            string[] moves = Regex.Split(pgnString, @"\b\d+\.")
+                                   .Where(x => !string.IsNullOrWhiteSpace(x))
+                                   .Select(x => x.Trim())
+                                   .ToArray();
+
+            List<string >pgnMoves = [];
+
+            foreach (var move in moves)
+            {
+                var whiteMoveStr = move.Split(" ")[0].TrimEnd('+');
+                var blackMoveStr = move.Split(" ")[1].TrimEnd('+');
+                pgnMoves.Add(whiteMoveStr); 
+                pgnMoves.Add(blackMoveStr);
+            }
 
             return pgnMoves;
 
         }
 
 
-
-
-
-        /// <summary>
-        /// Initializes new Move object by given positions
-        /// </summary>
-        public Move CreatePgnMove(string moveStr, PieceColor pieceColor)
+        public Move GetMoveFromPgn(string moveStr, PieceColor pieceColor)
         {
-            Position pieceDest = GetPieceDest(moveStr, pieceColor);
-            Position pieceSrc = GetPieceSrc(moveStr, pieceColor);
+            Position pieceDest = GetDestFromPgn(moveStr, pieceColor);
+            Position pieceSrc = GetSrcFromPgn(moveStr, pieceDest, pieceColor);
 
             var destPiece = _boardManagerService.GetPiece(pieceDest);
             var srcPiece = _boardManagerService.GetPiece(pieceSrc);
@@ -67,7 +80,7 @@ namespace ChessCommon.Services
             return move;
         }
 
-        private static Position GetPieceDest(string move, PieceColor pieceColor)
+        private static Position GetDestFromPgn(string move, PieceColor pieceColor)
         {
             //CheckFor castle
             int y = pieceColor == PieceColor.White ? 0 : 7;
@@ -82,76 +95,31 @@ namespace ChessCommon.Services
             return new Position(destString);
         }
 
-        private Position GetPieceSrc(string move, PieceColor pieceColor)
+        private Position GetSrcFromPgn(string move, Position destPosition, PieceColor pieceColor)
         {
-            if (move == "O-O-O" || move == "O-O")
+            MoveType moveType = CommonUtils.GetMoveType(move);
+
+            switch (moveType)
             {
-                int y = pieceColor == PieceColor.White ? 0 : 7;
-                return new Position(y, 4);
+                case MoveType.Castle:
+                    return GetSrcFromPgnCastle(pieceColor);
+                case MoveType.Pawn:
+                    return GetSrcFromPgnPawn(move, pieceColor);
+                case MoveType.Piece:
+                    return GetSrcFromPgnPiece(move, destPosition, pieceColor);
             }
 
-            PieceType pieceType = GetPieceType(move);
-
-            Position position = pieceType == PieceType.Pawn ?
-                GetPawnPieceSrc(move, pieceColor) :
-                GetNonPawnPieceSrc(move, pieceColor);
-
-            return position;
+            throw new NotImplementedException("Cannot parse move");
         }
 
-
-
-        private static PieceType GetPieceType(string move)
+        private Position GetSrcFromPgnPiece(string pgnMove, Position destPosition, PieceColor pieceColor)
         {
-            char pieceLetter = move[0];
-            return pieceLetter switch
-            {
-                'N' => PieceType.Knight,
-                'B' => PieceType.Bishop,
-                'R' => PieceType.Rook,
-                'Q' => PieceType.Queen,
-                'K' => PieceType.King,
-                _ => PieceType.Pawn
-            };
-        }
 
-        private Position GetPawnPieceSrc(string move, PieceColor pieceColor)
-        {
-            Position position;
-            int factor = pieceColor == PieceColor.White ? -1 : 1;
-
-            short srcXPosition = CommonUtils.PositionFromFile(move[0]);
-            short destYPosition = CommonUtils.PositionFromRank(move[move.Length - 1]);
-
-            bool isCapture = move.Contains("x");
-            if (isCapture)
-            {
-                position = new Position(destYPosition + factor, srcXPosition);
-                return position;
-            }
-            else
-            {
-                position = new Position(destYPosition + factor, srcXPosition);
-                if (_boardManagerService.GetPiece(position) != null)
-                    return position;
-
-                position = new Position(destYPosition + factor * 2, srcXPosition);
-                if (_boardManagerService.GetPiece(position) != null)
-                    return position;
-            }
-
-
-            throw new NotImplementedException("Cannor parse move");
-        }
-
-        private Position GetNonPawnPieceSrc(string move, PieceColor pieceColor)
-        {
-            PieceType pieceType = GetPieceType(move);
-            int srcEndIdx = move.Contains("x") ? move.Length - 3 : move.Length - 2;
-            string srcStr = move.Substring(1, srcEndIdx - 1);
+            PieceType pieceType = CommonUtils.GetPgnPieceType(pgnMove);
+            int srcEndIdx = pgnMove.Contains("x") ? pgnMove.Length - 3 : pgnMove.Length - 2;
+            string srcStr = pgnMove.Substring(1, srcEndIdx - 1);
             var pieces = _boardManagerService.GetAllPieces(pieceColor).Where(p => p.Type == pieceType);
-            var destPosition = GetPieceDest(move, pieceColor);
-
+         
             if (pieces.Count() == 0)
             {
                 throw new NotImplementedException("Cannot parse move");
@@ -184,11 +152,123 @@ namespace ChessCommon.Services
                     if (legalPositions.Exists(lp => lp == destPosition))
                         return piece.Position;
                 }
-
             }
 
             throw new NotImplementedException("Cannot parse move");
 
         }
+
+        private Position GetSrcFromPgnPawn(string move, PieceColor pieceColor)
+        {
+            Position position;
+            int factor = pieceColor == PieceColor.White ? -1 : 1;
+
+            short srcXPosition = CommonUtils.PositionFromFile(move[0]);
+            short destYPosition = CommonUtils.PositionFromRank(move[move.Length - 1]);
+
+            bool isCapture = move.Contains("x");
+            if (isCapture)
+            {
+                position = new Position(destYPosition + factor, srcXPosition);
+                return position;
+            }
+            else
+            {
+                position = new Position(destYPosition + factor, srcXPosition);
+                if (_boardManagerService.GetPiece(position) != null)
+                    return position;
+
+                position = new Position(destYPosition + factor * 2, srcXPosition);
+                if (_boardManagerService.GetPiece(position) != null)
+                    return position;
+            }
+
+
+            throw new NotImplementedException("Cannor parse move");
+        }
+
+        private Position GetSrcFromPgnCastle(PieceColor pieceColor)
+        {
+            int y = pieceColor == PieceColor.White ? 0 : 7;
+            return new Position(y, 4);
+        }
+
+
+        //From Move to Pgn
+        //public List<(string WhiteMove, string BlackMove)> ConvertToPgnMoves(List<Move> moves)
+        //{
+        //    List<(string MoveWhite, string MoveBlack)> pgnMoves = [];
+        //    PieceColor color = PieceColor.White;
+        //    string whiteMoveStr = string.Empty;
+        //    foreach (var move in moves)
+        //    {
+        //        if (PieceColor.White == color)
+        //        {
+        //            whiteMoveStr = ConvertToPgnMove(move, color);
+        //        }
+        //        else
+        //        {
+        //            var blackMoveStr = ConvertToPgnMove(move, PieceColor.Black);
+        //            pgnMoves.Add((whiteMoveStr, blackMoveStr));
+        //            whiteMoveStr = string.Empty;
+        //        }
+        //        _boardManagerService.DropPiece(move);
+        //    }
+        //    if (!string.IsNullOrEmpty(whiteMoveStr))
+        //        pgnMoves.Add((whiteMoveStr, string.Empty));
+
+        //    return pgnMoves;
+
+        //}
+
+        public string ConvertToPgnMove(Move move, PieceColor pieceColor)
+        {
+            string moveStr = move.ToString();
+            string captureChar = move.CapturedPiece == null ? string.Empty : "x";
+          
+
+            PieceType pieceType = move.Piece.Type;
+
+            if (move.IsCastle)
+            {
+                moveStr = move.Castle!.IsRightCastle ? "0-0" : "0-0-0";
+                return moveStr;
+            }
+
+            if (pieceType == PieceType.Pawn)
+            {
+                moveStr = move.CapturedPiece == null ? 
+                    $"{move.DestPosition}" : 
+                    $"{CommonUtils.GetPositionFile(move.SrcPosition)}{captureChar}{move.DestPosition}";
+
+                return moveStr;
+            }
+
+            var pieces = _boardManagerService
+                .GetAllPieces(pieceColor)
+                .Where(p => p!.Type == pieceType)
+                .Where(p => _positionEvaluatorService.GetLegalPositions(p!).Any(p => p == move.DestPosition));
+
+
+            var a1 = _boardManagerService
+             .GetAllPieces(pieceColor).ToList();
+            var a2 = a1.Where(p => p!.Type == pieceType).ToList();
+
+            var srcIndication = string.Empty;
+            if (pieces.Select(p => p.Position.X).Count() > 1)
+                srcIndication = move.Piece.Position.X.ToString();
+
+            if (pieces.Select(p => p.Position.Y).Count() > 1)
+                srcIndication = move.Piece.Position.Y.ToString();
+
+            moveStr = $"{pieceType.ToPgn()}{srcIndication}{captureChar}{move.DestPosition}";
+            return moveStr;
+        }
+
+
+   
+
     }
+
+
 }

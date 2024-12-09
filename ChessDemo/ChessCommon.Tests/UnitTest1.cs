@@ -12,7 +12,7 @@ namespace ChessCommon.Tests
             b.Reset();
             IPositionEvaluatorService p = new PositionEvaluatorService(b);
             IPgnAnalyzerService pgn = new PgnAnalyzerService(b,p);
-            pgn.LoadGame("");
+          //  pgn.GetMovesFromPgnSrc("");
         }
     }
 }

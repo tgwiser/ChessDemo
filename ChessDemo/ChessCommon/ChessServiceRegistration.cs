@@ -22,6 +22,7 @@ namespace ChessCommon
             services.AddScoped<IPositionEvaluatorService, PositionEvaluatorService>();
             services.AddScoped<IGameEvaluatorService, GameEvaluatorService>();
             services.AddScoped<IPgnAnalyzerService, PgnAnalyzerService>();
+            services.AddScoped<IGameHistoryService, GameHistoryService>();
             services.AddScoped<IChessEngine, ChessEngine>();
 
 

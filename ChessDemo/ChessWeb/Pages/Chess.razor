@@ -79,8 +79,8 @@
 
                 <div style="padding-top:10px;clear:both">
                     <button class="btn btn-primary btn-sm" @onclick="Play">  Play </button>
-                                <button @onclick="chessEngine.Next" class="btn btn-outline-info btn-sm">Next Move</button>
-                                <button @onclick="chessEngine.Prev" class="btn btn-outline-info btn-sm">Prev Move</button>
+                    <button @onclick="() => chessEngine.TryGetNextMove()" class="btn btn-outline-info btn-sm">Next Move</button>
+                    <button @onclick="() => chessEngine.TryGetPrevMove()" class="btn btn-outline-info btn-sm">Prev Move</button>
                 </div>
       </div>
     </div>
@@ -185,6 +185,10 @@
              
                   </div>
                   <div class=" chess-info" style="clear:both">
+                                <div style="padding-top:10px;clear:both">
+                                    <button @onclick="() => chessEngine.TryGetNextMove()" class="btn btn-outline-info btn-sm">Next Move</button>
+                                    <button @onclick="() => chessEngine.TryGetPrevMove()" class="btn btn-outline-info btn-sm">Prev Move</button>
+                                </div>
                 <button class="btn btn-primary  btn-sm" @onclick="FindGames">
                     Find
                 </button>

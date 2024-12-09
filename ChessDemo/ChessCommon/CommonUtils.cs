@@ -1,4 +1,5 @@
-﻿using ChessCommon.Models;
+﻿using ChessCommon.Common;
+using ChessCommon.Models;
 using ChessCommon.Services.Contracts;
 using System.Text;
 
@@ -76,6 +77,13 @@ public class CommonUtils
         return (short)(file - 'a');
     }
 
+    public static string GetPositionFile(Position p)
+    {
+        byte[] intBytes = BitConverter.GetBytes(97 + p.X);
+        var file = BitConverter.ToChar(intBytes).ToString();
+        return file;
+    }
+
     /// <summary>
     /// Short vertical position from rank char<br/>
     /// '1' => 0<br/>
@@ -93,23 +101,6 @@ public class CommonUtils
     }
 
 
-    public static (bool, bool) IsDestinationStateChanged(Piece piece, IBoardManagerService boardManager)
-    {
-        if (piece.Type != PieceType.King && piece.Type != PieceType.Rook)
-            return (false, false);
-
-
-        (bool leftCastlingEnabled, bool rightCastlingEnabled) = boardManager.GetCastleState(piece.Color);
-
-        if (piece.Type == PieceType.King)
-            return (leftCastlingEnabled, rightCastlingEnabled);
-
-        if (piece.Type == PieceType.Rook)
-            return (leftCastlingEnabled && piece.Position.X == 0, rightCastlingEnabled && piece.Position.X == 7);
-
-
-        return (leftCastlingEnabled, rightCastlingEnabled);
-    }
 
 
     public static List<(Position src, Position dest)> GetSrcDestData(string moveData)
@@ -135,6 +126,31 @@ public class CommonUtils
             movesStr.AppendLine(move.MoveData);
         }
         return movesStr.ToString();
+    }
+
+    public static PieceType GetPgnPieceType(string pgnMove)
+    {
+        char pieceLetter = pgnMove[0];
+        return pieceLetter switch
+        {
+            'N' => PieceType.Knight,
+            'B' => PieceType.Bishop,
+            'R' => PieceType.Rook,
+            'Q' => PieceType.Queen,
+            'K' => PieceType.King,
+            _ => PieceType.Pawn
+        };
+    }
+
+    public static MoveType GetMoveType(string pgnMove)
+    {
+        if (pgnMove == "O-O-O" || pgnMove == "O-O")
+            return MoveType.Castle;
+
+        return (GetPgnPieceType(pgnMove) == PieceType.Pawn) ?
+            MoveType.Pawn :
+            MoveType.Piece;
+
     }
 
 }

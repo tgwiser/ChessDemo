@@ -1,6 +1,7 @@
 ﻿using ChessCommon.Models;
 using ChessCommon.Services;
 using ChessCommon.Services.Contracts;
+using System.Drawing;
 
 namespace ChessCommon;
 
@@ -13,14 +14,12 @@ public class ChessEngine : IChessEngine
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) WhiteCastlingState { get { return _boardManagerService.GetCastleState(PieceColor.White); } }
     public (bool IsLeftCastlingEnabled, bool IsRightCastlingEnabled) BlackCastlingState { get { return _boardManagerService.GetCastleState(PieceColor.Black); } }
 
-    GameHistoryService gameHistoryManager = new GameHistoryService();
-
     private IPositionEvaluatorService _positionEvaluatorEngineService;
     private IGamePersistenseService _gamePersistenseManagerService;
     private IBoardManagerService _boardManagerService;
     private IGameEvaluatorService _gameEvaluatorService;
     private IPgnAnalyzerService _pgnAnalyzerService;
-
+    private IGameHistoryService _gameHistoryService;
     private bool standardiseCastlingPositions;
 
     /// <summary>
@@ -31,7 +30,8 @@ public class ChessEngine : IChessEngine
         IBoardManagerService boardManager,
         IGameEvaluatorService gameEvaluator,
         IGamePersistenseService gamePersistenseManager,
-        IPgnAnalyzerService pgnAnalyzerService)
+        IPgnAnalyzerService pgnAnalyzerService,
+        IGameHistoryService gameHistoryService)
     {
         _positionEvaluatorEngineService = positionEvaluator;
 
@@ -40,6 +40,7 @@ public class ChessEngine : IChessEngine
         _gameEvaluatorService = gameEvaluator;
         _gamePersistenseManagerService = gamePersistenseManager;
         _pgnAnalyzerService = pgnAnalyzerService;
+        _gameHistoryService = gameHistoryService;
     }
 
     public void DropPiece(Position srcPosition, Position destPosition)
@@ -66,7 +67,7 @@ public class ChessEngine : IChessEngine
         _boardManagerService.DropPiece(move);
 
         //Update move history.
-        gameHistoryManager.AddMove(move);
+        _gameHistoryService.AddMove(move);
 
         //Reset the game evaluator.
         _gameEvaluatorService.InitPlayersPieces();
@@ -78,7 +79,7 @@ public class ChessEngine : IChessEngine
 
     public List<Move> GetMoves()
     {
-        return gameHistoryManager.GetMoves();
+        return _gameHistoryService.GetMoves();
     }
 
 
@@ -147,23 +148,28 @@ public class ChessEngine : IChessEngine
     }
 
 
-    public void Next()
+    public bool TryGetNextMove()
     {
-        if (gameHistoryManager.TryGetNextMove(out Move? move))
+        Move? move = null;
+        if (_gameHistoryService.TryGetNextMove(out move))
             DropPiece(move!);
+        return move != null;
     }
 
-    public void Prev()
+    public bool TryGetPrevMove()
     {
-        if (gameHistoryManager.TryGetPrevMove(out Move? move))
+        Move? move = null;
+        if (_gameHistoryService.TryGetPrevMove(out move))
             RestorePiece(move!);
+        return move != null;
+
     }
 
 
     //Save load games.
     public void SaveBoard(string fileName)
     {
-        var moves = gameHistoryManager.GetMoves();
+        var moves = _gameHistoryService.GetMoves();
         var movesStr = CommonUtils.GetSrcDestData(moves);
         _gamePersistenseManagerService.SaveGame(fileName, movesStr);
     }
@@ -203,22 +209,72 @@ public class ChessEngine : IChessEngine
     //Pgn.
     public void LoadPgnBoard(string pgnStr)
     {
-        var pgnMoves = _pgnAnalyzerService.LoadGame(pgnStr);
+        //Rest history & Board.
+        _boardManagerService.Reset();
+        _gameHistoryService.Reset();
+        
+        //Load moves from pgn.
+        var pgnMoves = _pgnAnalyzerService.GetPgnMovesFromPgnSrc(pgnStr);
+
+        PieceColor currentMoveColor = PieceColor.White;
 
         foreach (var pgnMove in pgnMoves)
         {
-            DropPiece(pgnMove.WhiteMove);
+            try
+            {
+                var move = _pgnAnalyzerService.GetMoveFromPgn(pgnMove, currentMoveColor);
+                currentMoveColor = currentMoveColor == PieceColor.White ? PieceColor.Black : PieceColor.White;
+                if (move != null)
+                    DropPiece(move);
+            }
+            catch (Exception ex) 
+            { 
 
-            if (pgnMove.BlackMove != null)
-                DropPiece(pgnMove.BlackMove);
+            }
         }
+
+        var t1 = GetGamePgn();
+    }
+
+    public List<string> GetGamePgn()
+    {
+        //Rest history & Board.
+        ResetPgnMoves();
+
+        List<string> pgnMoves = new();
+
+        string whiteMoveStr = string.Empty;
+        int idx = 1;
+        while (_gameHistoryService.TryGetNextMove(out Move? move))
+        {
+            var color = move!.Piece.Color;
+            if (PieceColor.White == color)
+            {
+                whiteMoveStr = _pgnAnalyzerService.ConvertToPgnMove(move!, PieceColor.White);
+            }
+            else
+            {
+                var blackMoveStr = _pgnAnalyzerService.ConvertToPgnMove(move!, color);
+                pgnMoves.Add($"{idx}. {whiteMoveStr} {blackMoveStr}");
+                whiteMoveStr = string.Empty;
+                idx++;
+            }
+            DropPiece(move!);
+        }
+
+        if (!string.IsNullOrEmpty(whiteMoveStr))
+            pgnMoves.Add($"{whiteMoveStr}");
+
+
+        File.WriteAllLines("tal.txt", pgnMoves);
+        return pgnMoves;
     }
 
 
 
     public void ResetPgnMoves()
     {
-        while (gameHistoryManager.TryGetPrevMove(out Move? move))
+        while (_gameHistoryService.TryGetPrevMove(out Move? move))
             _boardManagerService.RestorePiece(move);
     }
 

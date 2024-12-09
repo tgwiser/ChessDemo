@@ -14,20 +14,23 @@ namespace ChessWeb
         IGamePersistenseService _gamePersistenseManager;
         IChessEngine _chessEngine;
         IPgnAnalyzerService _pgnAnalyzerService;
+        IGameHistoryService _gameHistoryService;
 
         public ChessService(
             IPositionEvaluatorService positionCalculator,
             IBoardManagerService boardManager,
             IGameEvaluatorService gameEvaluator, 
             IGamePersistenseService gamePersistenseManager,
-            IPgnAnalyzerService pgnAnalyzerService)
+            IPgnAnalyzerService pgnAnalyzerService,
+            IGameHistoryService gameHistoryService)
         {
             PositionEvaluator = positionCalculator;
             BoardManager = boardManager;
             _gamePersistenseManager = gamePersistenseManager;
             _gameEvaluator = gameEvaluator;
             _pgnAnalyzerService = pgnAnalyzerService;
-            _chessEngine = new ChessEngine(PositionEvaluator, BoardManager, _gameEvaluator, _gamePersistenseManager, _pgnAnalyzerService);
+            _gameHistoryService = gameHistoryService;
+            _chessEngine = new ChessEngine(PositionEvaluator, BoardManager, _gameEvaluator, _gamePersistenseManager, _pgnAnalyzerService, _gameHistoryService);
         }
 
  
