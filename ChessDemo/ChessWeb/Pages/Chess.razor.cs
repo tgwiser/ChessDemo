@@ -27,6 +27,7 @@ namespace ChessWeb.Pages
         private string csvFile = "";
         private string pgnStr = "";
         private string gameFilter = "";
+        private string pgnFileName = "";
 
         private List<Move> moves = [];
         private List<string> gameList = [];

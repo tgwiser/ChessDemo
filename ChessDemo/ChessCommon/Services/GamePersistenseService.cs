@@ -17,7 +17,7 @@ public class GamePersistenseService : IGamePersistenseService
 
     public async Task SaveGame(string fileName, string movesStr)
     {
-        await _chessRepository.SaveAsync(new Game() { Moves = movesStr.ToString(), Name = fileName });
+        await _chessRepository.SaveAsync(new Game() { Moves = movesStr, Name = fileName });
     }
 
     public async Task<Game> GetGame(string fileName)

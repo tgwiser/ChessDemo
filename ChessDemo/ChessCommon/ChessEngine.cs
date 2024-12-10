@@ -2,6 +2,7 @@
 using ChessCommon.Services;
 using ChessCommon.Services.Contracts;
 using System.Drawing;
+using System.Text;
 
 namespace ChessCommon;
 
@@ -169,23 +170,19 @@ public class ChessEngine : IChessEngine
     //Save load games.
     public void SaveBoard(string fileName)
     {
-        var moves = _gameHistoryService.GetMoves();
-        var movesStr = CommonUtils.GetSrcDestData(moves);
+        var movesStr = GetGamePgn();
         _gamePersistenseManagerService.SaveGame(fileName, movesStr);
     }
 
     public async Task LoadBoard(string fileName)
     {
+        //Rest history & Board.
         _gameEvaluatorService.InitPlayersPieces();
-
         _boardManagerService.Reset();
+        _gameHistoryService.Reset();
 
         var game = await _gamePersistenseManagerService.GetGame(fileName);
-        var moveData = CommonUtils.GetSrcDestData(game.Moves);
-        foreach (var srcDest in moveData)
-        {
-            DropPiece(srcDest.src, srcDest.dest);
-        }
+        LoadPgnBoard(game.Moves);
     }
 
     public async Task<List<string>> FindGames()
@@ -209,17 +206,16 @@ public class ChessEngine : IChessEngine
     //Pgn.
     public void LoadPgnBoard(string pgnStr)
     {
-        //Rest history & Board.
-        _boardManagerService.Reset();
-        _gameHistoryService.Reset();
-        
         //Load moves from pgn.
         var pgnMoves = _pgnAnalyzerService.GetPgnMovesFromPgnSrc(pgnStr);
 
         PieceColor currentMoveColor = PieceColor.White;
 
+        int idx = 0;
         foreach (var pgnMove in pgnMoves)
         {
+            idx++;
+
             try
             {
                 var move = _pgnAnalyzerService.GetMoveFromPgn(pgnMove, currentMoveColor);
@@ -227,47 +223,42 @@ public class ChessEngine : IChessEngine
                 if (move != null)
                     DropPiece(move);
             }
-            catch (Exception ex) 
-            { 
-
+            catch (Exception ex)
+            {
             }
-        }
 
-        var t1 = GetGamePgn();
+        }
     }
 
-    public List<string> GetGamePgn()
+    public string GetGamePgn()
     {
         //Rest history & Board.
         ResetPgnMoves();
 
-        List<string> pgnMoves = new();
+        StringBuilder pgnMoves = new();
 
         string whiteMoveStr = string.Empty;
+        string blackMoveStr = string.Empty;
         int idx = 1;
         while (_gameHistoryService.TryGetNextMove(out Move? move))
         {
-            var color = move!.Piece.Color;
-            if (PieceColor.White == color)
+            if (PieceColor.White == move!.Piece.Color)
             {
                 whiteMoveStr = _pgnAnalyzerService.ConvertToPgnMove(move!, PieceColor.White);
             }
             else
             {
-                var blackMoveStr = _pgnAnalyzerService.ConvertToPgnMove(move!, color);
-                pgnMoves.Add($"{idx}. {whiteMoveStr} {blackMoveStr}");
+                blackMoveStr = _pgnAnalyzerService.ConvertToPgnMove(move!, PieceColor.Black);
+                pgnMoves.AppendLine($"{idx++}. {whiteMoveStr} {blackMoveStr}");
                 whiteMoveStr = string.Empty;
-                idx++;
             }
             DropPiece(move!);
         }
 
         if (!string.IsNullOrEmpty(whiteMoveStr))
-            pgnMoves.Add($"{whiteMoveStr}");
+            pgnMoves.AppendLine($"{idx++}. {whiteMoveStr}");
 
-
-        File.WriteAllLines("tal.txt", pgnMoves);
-        return pgnMoves;
+        return pgnMoves.ToString();
     }
 
 
@@ -276,6 +267,12 @@ public class ChessEngine : IChessEngine
     {
         while (_gameHistoryService.TryGetPrevMove(out Move? move))
             _boardManagerService.RestorePiece(move);
+    }
+
+    public void ExportPgn(string fileName)
+    {
+        string data = GetGamePgn();
+        File.WriteAllText(fileName + ".txt", data);
     }
 
 }

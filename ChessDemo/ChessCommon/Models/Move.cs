@@ -24,10 +24,6 @@ public class Move
 
         IsCastle = piece.Type == PieceType.King && Math.Abs(originalPosition.X - newPosition.X) >= 2;
 
-        if (IsCastle)
-        {
-
-        }
         IsLeftRock = piece.Type == PieceType.Rook && originalPosition.X == 0;
         IsRightRock = piece.Type == PieceType.Rook && originalPosition.X == 7;
     }

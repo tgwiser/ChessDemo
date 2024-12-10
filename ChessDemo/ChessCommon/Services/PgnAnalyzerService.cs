@@ -19,31 +19,6 @@ namespace ChessCommon.Services
 
 
         //From Pgn to Move
-        public List<(Move WhiteMove, Move BlackMove)> GetMovesFromPgnSrc(string pgnString)
-        {
-            // Regular expression to split by move numbers (e.g., "1.", "2.", etc.)
-            string[] moves = Regex.Split(pgnString, @"\b\d+\.")
-                                   .Where(x => !string.IsNullOrWhiteSpace(x))
-                                   .Select(x => x.Trim())
-                                   .ToArray();
-
-            List<(Move MoveWhite, Move MoveBlack)> pgnMoves = [];
-
-            foreach (var move in moves)
-            {
-                var whiteMoveStr = move.Split(" ")[0].TrimEnd('+');
-                var moveWhite = GetMoveFromPgn(whiteMoveStr, PieceColor.White);
-                _boardManagerService.DropPiece(moveWhite);
-
-                var blackMoveStr = move.Split(" ")[1].TrimEnd('+');
-                var moveBlack = GetMoveFromPgn(blackMoveStr, PieceColor.Black);
-                _boardManagerService.DropPiece(moveBlack);
-                pgnMoves.Add((moveWhite, moveBlack));
-            }
-
-            return pgnMoves;
-
-        }
 
         public List<string> GetPgnMovesFromPgnSrc(string pgnString)
         {
@@ -57,27 +32,45 @@ namespace ChessCommon.Services
 
             foreach (var move in moves)
             {
-                var whiteMoveStr = move.Split(" ")[0].TrimEnd('+');
-                var blackMoveStr = move.Split(" ")[1].TrimEnd('+');
-                pgnMoves.Add(whiteMoveStr); 
-                pgnMoves.Add(blackMoveStr);
+                var moveArr = move.Split(" ");
+                var whiteMoveStr = moveArr[0].TrimEnd('+');
+                pgnMoves.Add(whiteMoveStr);
+
+                if (moveArr.Length > 1)
+                {
+                    var blackMoveStr = moveArr[1].TrimEnd('+');
+                    pgnMoves.Add(blackMoveStr);
+                }
             }
 
             return pgnMoves;
 
         }
 
-
         public Move GetMoveFromPgn(string moveStr, PieceColor pieceColor)
         {
-            Position pieceDest = GetDestFromPgn(moveStr, pieceColor);
-            Position pieceSrc = GetSrcFromPgn(moveStr, pieceDest, pieceColor);
+            try
+            {
+                Position pieceDest = GetDestFromPgn(moveStr, pieceColor);
+                Position pieceSrc = GetSrcFromPgn(moveStr, pieceDest, pieceColor);
 
-            var destPiece = _boardManagerService.GetPiece(pieceDest);
-            var srcPiece = _boardManagerService.GetPiece(pieceSrc);
+                var destPiece = _boardManagerService.GetPiece(pieceDest);
+                var srcPiece = _boardManagerService.GetPiece(pieceSrc);
 
-            Move move = new Move(pieceSrc, pieceDest, srcPiece, destPiece);
-            return move;
+                Move move = new Move(pieceSrc, pieceDest, srcPiece, destPiece);
+                return move;
+            }
+            catch (Exception ex) 
+            {
+                Position pieceDest = GetDestFromPgn(moveStr, pieceColor);
+                Position pieceSrc = GetSrcFromPgn(moveStr, pieceDest, pieceColor);
+
+                var destPiece = _boardManagerService.GetPiece(pieceDest);
+                var srcPiece = _boardManagerService.GetPiece(pieceSrc);
+
+                Move move = new Move(pieceSrc, pieceDest, srcPiece, destPiece);
+                return move;
+            }
         }
 
         private static Position GetDestFromPgn(string move, PieceColor pieceColor)
@@ -120,11 +113,6 @@ namespace ChessCommon.Services
             string srcStr = pgnMove.Substring(1, srcEndIdx - 1);
             var pieces = _boardManagerService.GetAllPieces(pieceColor).Where(p => p.Type == pieceType);
          
-            if (pieces.Count() == 0)
-            {
-                throw new NotImplementedException("Cannot parse move");
-            }
-
             if (pieces.Count() == 1)
             {
                 if (!string.IsNullOrEmpty(srcStr))
@@ -193,33 +181,7 @@ namespace ChessCommon.Services
             return new Position(y, 4);
         }
 
-
-        //From Move to Pgn
-        //public List<(string WhiteMove, string BlackMove)> ConvertToPgnMoves(List<Move> moves)
-        //{
-        //    List<(string MoveWhite, string MoveBlack)> pgnMoves = [];
-        //    PieceColor color = PieceColor.White;
-        //    string whiteMoveStr = string.Empty;
-        //    foreach (var move in moves)
-        //    {
-        //        if (PieceColor.White == color)
-        //        {
-        //            whiteMoveStr = ConvertToPgnMove(move, color);
-        //        }
-        //        else
-        //        {
-        //            var blackMoveStr = ConvertToPgnMove(move, PieceColor.Black);
-        //            pgnMoves.Add((whiteMoveStr, blackMoveStr));
-        //            whiteMoveStr = string.Empty;
-        //        }
-        //        _boardManagerService.DropPiece(move);
-        //    }
-        //    if (!string.IsNullOrEmpty(whiteMoveStr))
-        //        pgnMoves.Add((whiteMoveStr, string.Empty));
-
-        //    return pgnMoves;
-
-        //}
+        //From Move  to Pgn
 
         public string ConvertToPgnMove(Move move, PieceColor pieceColor)
         {
@@ -231,7 +193,7 @@ namespace ChessCommon.Services
 
             if (move.IsCastle)
             {
-                moveStr = move.Castle!.IsRightCastle ? "0-0" : "0-0-0";
+                moveStr = move.Castle!.IsRightCastle ? "O-O" : "O-O-O";
                 return moveStr;
             }
 
@@ -249,16 +211,11 @@ namespace ChessCommon.Services
                 .Where(p => p!.Type == pieceType)
                 .Where(p => _positionEvaluatorService.GetLegalPositions(p!).Any(p => p == move.DestPosition));
 
-
-            var a1 = _boardManagerService
-             .GetAllPieces(pieceColor).ToList();
-            var a2 = a1.Where(p => p!.Type == pieceType).ToList();
-
             var srcIndication = string.Empty;
-            if (pieces.Select(p => p.Position.X).Count() > 1)
-                srcIndication = move.Piece.Position.X.ToString();
+            if (pieces.Select(p => p.Position.X).Distinct().Count() > 1)
+                srcIndication = CommonUtils.GetPositionFile(move.Piece.Position);
 
-            if (pieces.Select(p => p.Position.Y).Count() > 1)
+            if (pieces.Select(p => p.Position.Y).Distinct().Count() > 1)
                 srcIndication = move.Piece.Position.Y.ToString();
 
             moveStr = $"{pieceType.ToPgn()}{srcIndication}{captureChar}{move.DestPosition}";

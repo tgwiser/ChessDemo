@@ -186,8 +186,8 @@
                   </div>
                   <div class=" chess-info" style="clear:both">
                                 <div style="padding-top:10px;clear:both">
-                                    <button @onclick="() => chessEngine.TryGetNextMove()" class="btn btn-outline-info btn-sm">Next Move</button>
-                                    <button @onclick="() => chessEngine.TryGetPrevMove()" class="btn btn-outline-info btn-sm">Prev Move</button>
+                                    <button @onclick="() => chessEngine.ExportPgn(pgnFileName)" class="btn btn-outline-info btn-sm">Export</button>
+                                    <input type="text" @bind="pgnFileName" placeholder="" />
                                 </div>
                 <button class="btn btn-primary  btn-sm" @onclick="FindGames">
                     Find

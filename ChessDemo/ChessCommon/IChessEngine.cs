@@ -29,5 +29,7 @@ namespace ChessCommon
         void LoadPgnBoard(string fileName);
 
         void ResetPgnMoves();
+
+        void ExportPgn(string fileName);
     }
 }
