@@ -5,7 +5,7 @@ namespace ChessCommon.Services.Contracts
 
     public interface IBoardManagerService
     {
-        Board? Board { get;  }
+        Board? Board { get; }
 
         void DropPiece(Move move);
 

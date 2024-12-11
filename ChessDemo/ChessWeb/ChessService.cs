@@ -1,8 +1,7 @@
 ﻿using ChessCommon;
-using ChessCommon.Services.Contracts;
 using ChessCommon.Models;
+using ChessCommon.Services.Contracts;
 using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace ChessWeb
 {
@@ -19,7 +18,7 @@ namespace ChessWeb
         public ChessService(
             IPositionEvaluatorService positionCalculator,
             IBoardManagerService boardManager,
-            IGameEvaluatorService gameEvaluator, 
+            IGameEvaluatorService gameEvaluator,
             IGamePersistenseService gamePersistenseManager,
             IPgnAnalyzerService pgnAnalyzerService,
             IGameHistoryService gameHistoryService)
@@ -33,7 +32,7 @@ namespace ChessWeb
             _chessEngine = new ChessEngine(PositionEvaluator, BoardManager, _gameEvaluator, _gamePersistenseManager, _pgnAnalyzerService, _gameHistoryService);
         }
 
- 
+
         public string PlayBestMove(Piece? piece)
         {
             if (piece == null)

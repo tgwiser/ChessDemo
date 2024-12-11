@@ -1,4 +1,3 @@
-using ChessCommon;
 using ChessCommon.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,7 +11,7 @@ namespace ChessWeb.Pages
 
 
         [Inject]
-        protected ChessService _chessService { get; set; } 
+        protected ChessService _chessService { get; set; }
 
         private Position originalPosition;
 
@@ -58,9 +57,10 @@ namespace ChessWeb.Pages
             await chessEngine.LoadBoard(csvFile);
             moves = chessEngine.GetMoves();
             Info = "File uploaded1";
-        } 
+        }
 
-        private async Task FindGames() {
+        private async Task FindGames()
+        {
             gameList = await chessEngine.FindGames(gameFilter);
         }
 

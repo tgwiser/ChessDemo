@@ -5,7 +5,7 @@ namespace ChessCommon.Services;
 
 public class BoardManagerService : IBoardManagerService
 {
-    public Board? Board {  get; private set; }
+    public Board? Board { get; private set; }
 
     public Piece GetPiece(Position position) => Board![position]!;
 
@@ -101,7 +101,7 @@ public class BoardManagerService : IBoardManagerService
 
     public void Reset(Board board = null)
     {
-        Board = board ?? CommonUtils.GetIDefaultBoard(); 
+        Board = board ?? CommonUtils.GetIDefaultBoard();
     }
 
     private void UpdateLeftCastleMoveAndBoard(Move move, Board board)

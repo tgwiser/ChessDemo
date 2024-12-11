@@ -1,11 +1,5 @@
-﻿using ChessCommon.Services.Contracts;
+﻿using ChessCommon.Models;
 using ChessCommon.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChessCommon.Models;
 using Moq;
 
 namespace ChessCommon.Tests.Services
@@ -15,12 +9,13 @@ namespace ChessCommon.Tests.Services
         private readonly Mock<Board> _mockBoard;
         private readonly BoardManagerService _boardManagerService;
 
-        public BoardManagerServiceTests() {
+        public BoardManagerServiceTests()
+        {
             _mockBoard = new Mock<Board>();
             _boardManagerService = new BoardManagerService();
             _boardManagerService.Reset();
         }
-            
+
 
 
         [Theory]
@@ -40,7 +35,7 @@ namespace ChessCommon.Tests.Services
             Assert.Equal(pieceByCordination, pieceByPossition);
         }
 
-      
+
         [Fact]
         public void GetAllPieces_InitBoard_ValidatePieces()
         {
@@ -49,7 +44,8 @@ namespace ChessCommon.Tests.Services
 
             //Act
             var allWhitePieces = _boardManagerService.GetAllPieces(PieceColor.White);
-            foreach (var piece in allWhitePieces) {
+            foreach (var piece in allWhitePieces)
+            {
                 Assert.Contains(allPieces, p => p.Position == piece!.Position);
             }
 

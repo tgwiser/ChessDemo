@@ -28,7 +28,7 @@ namespace ChessCommon.Services
                                    .Select(x => x.Trim())
                                    .ToArray();
 
-            List<string >pgnMoves = [];
+            List<string> pgnMoves = [];
 
             foreach (var move in moves)
             {
@@ -60,7 +60,7 @@ namespace ChessCommon.Services
                 Move move = new Move(pieceSrc, pieceDest, srcPiece, destPiece);
                 return move;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Position pieceDest = GetDestFromPgn(moveStr, pieceColor);
                 Position pieceSrc = GetSrcFromPgn(moveStr, pieceDest, pieceColor);
@@ -112,7 +112,7 @@ namespace ChessCommon.Services
             int srcEndIdx = pgnMove.Contains("x") ? pgnMove.Length - 3 : pgnMove.Length - 2;
             string srcStr = pgnMove.Substring(1, srcEndIdx - 1);
             var pieces = _boardManagerService.GetAllPieces(pieceColor).Where(p => p.Type == pieceType);
-         
+
             if (pieces.Count() == 1)
             {
                 if (!string.IsNullOrEmpty(srcStr))
@@ -187,7 +187,7 @@ namespace ChessCommon.Services
         {
             string moveStr = move.ToString();
             string captureChar = move.CapturedPiece == null ? string.Empty : "x";
-          
+
 
             PieceType pieceType = move.Piece.Type;
 
@@ -199,8 +199,8 @@ namespace ChessCommon.Services
 
             if (pieceType == PieceType.Pawn)
             {
-                moveStr = move.CapturedPiece == null ? 
-                    $"{move.DestPosition}" : 
+                moveStr = move.CapturedPiece == null ?
+                    $"{move.DestPosition}" :
                     $"{CommonUtils.GetPositionFile(move.SrcPosition)}{captureChar}{move.DestPosition}";
 
                 return moveStr;
@@ -223,7 +223,7 @@ namespace ChessCommon.Services
         }
 
 
-   
+
 
     }
 

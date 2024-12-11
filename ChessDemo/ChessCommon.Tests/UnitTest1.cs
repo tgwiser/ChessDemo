@@ -11,8 +11,8 @@ namespace ChessCommon.Tests
             IBoardManagerService b = new BoardManagerService();
             b.Reset();
             IPositionEvaluatorService p = new PositionEvaluatorService(b);
-            IPgnAnalyzerService pgn = new PgnAnalyzerService(b,p);
-          //  pgn.GetMovesFromPgnSrc("");
+            IPgnAnalyzerService pgn = new PgnAnalyzerService(b, p);
+            //  pgn.GetMovesFromPgnSrc("");
         }
     }
 }
