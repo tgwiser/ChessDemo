@@ -9,7 +9,6 @@ namespace ChessCommon.Persistense
         public void Configure(EntityTypeBuilder<Game> builder)
         {
             builder.HasKey(u => u.Id);
-
         }
     }
 }

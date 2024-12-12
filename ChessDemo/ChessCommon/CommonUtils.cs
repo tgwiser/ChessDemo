@@ -141,15 +141,6 @@ public class CommonUtils
         };
     }
 
-    public static MoveType GetMoveType(string pgnMove)
-    {
-        if (pgnMove == "O-O-O" || pgnMove == "O-O")
-            return MoveType.Castle;
 
-        return (GetPgnPieceType(pgnMove) == PieceType.Pawn) ?
-            MoveType.Pawn :
-            MoveType.Piece;
-
-    }
 
 }

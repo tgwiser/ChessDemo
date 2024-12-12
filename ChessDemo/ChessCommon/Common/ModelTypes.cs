@@ -6,7 +6,8 @@
 
     public enum MoveType
     {
-        Castle,
+        SmallCastle,
+        LargeCastle,
         Pawn,
         Piece
     }
